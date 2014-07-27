@@ -24,6 +24,9 @@ namespace IFILifeSupport
         public float displayRate;
         [KSPField(guiActive = false, isPersistant = true)]
         private int IFITimer; // Used to track LS use on inactive vessels
+        [KSPField(guiActive = false, isPersistant = true)]
+        private bool isRescue; 
+
 
         public override void OnUpdate()
         {
@@ -83,19 +86,21 @@ namespace IFILifeSupport
                            electricRequest = electricRequest * 1.5;
                         }
                         double ElectricReturn = this.part.RequestResource("ElectricCharge", electricRequest);
-                       
-                        IFIDebug.IFIMess(this.part.vessel.vesselName+"EVA ELect Resource Return == " + Convert.ToString(ElectricReturn));
+                        IFIDebug.IFIMess("#### KERBAL EVA (" + this.part.vessel.vesselName + ")");
+                        IFIDebug.IFIMess("  EVA ELect Resource Return == " + Convert.ToString(ElectricReturn));
 
-                        IFIDebug.IFIMess(this.part.vessel.vesselName+"EVA LS resource Avalible == " + Convert.ToString(ResourceAval));
-                        IFIDebug.IFIMess(this.part.vessel.vesselName+"EVA LS Resource Return == " + Convert.ToString(resourceReturn));
+                        IFIDebug.IFIMess("  EVA LS resource Avalible == " + Convert.ToString(ResourceAval));
+                        IFIDebug.IFIMess("  EVA LS Resource Return == " + Convert.ToString(resourceReturn));
                         if (RATE > 0 && resourceReturn <= 0 || ElectricReturn <= 0)
                         {
-                            IFIDebug.IFIMess(this.part.vessel.vesselName + "EVA Crew has no LS or Charge Remaining ");
+                            IFIDebug.IFIMess("  EVA Crew has no LS or Charge Remaining ");
                             TimeWarp.SetRate(0, true);
                             CrewTest(); // Check for crew death
                         }
-                        else { IFICWLS = 25; }
+                        else { IFICWLS = 25; } // Reset Death chance to INIT value if resources are avalible
                         IFITimer = Convert.ToInt32(Planetarium.fetch.time);
+                        IFIDebug.IFIMess("###############");
+
                     }
                 
             }
@@ -105,9 +110,21 @@ namespace IFILifeSupport
 
         private void Initialize()
         {
-            IFIDebug.IFIMess(this.part.vessel.vesselName+"EVA Init(): OnInit Fired ++ EVA");
+            if (isRescue == false && IFITimer == 0)
+            {
+                double IFIResourceAmt = Rate_Per_Kerbal * 60 * 60 * 4;
+                IFIResourceAmt = this.part.RequestResource("LifeSupport", 0.0 - IFIResourceAmt);
+                IFIResourceAmt = this.part.RequestResource("ElectricCharge", 0.0 - IFIResourceAmt - 2);
+                isRescue = true;
+            }
+            else
+            {
+                isRescue = true;
+            }
+            IFIDebug.IFIMess(this.part.vessel.vesselName + " EVA Init(): OnInit Fired ++ EVA");
             if (IFITimer < 1) IFITimer = Convert.ToInt32(Planetarium.fetch.time);
             initialized = true;
+            
 
         }
 
@@ -123,7 +140,7 @@ namespace IFILifeSupport
                 ProtoCrewMember iCrew = this.part.protoModuleCrew[0];
                 this.part.RemoveCrewmember(iCrew);// Remove crew from part
                 iCrew.Die();// Kill crew after removal or death will reset to active.
-                IFIDebug.IFIMess(part.vessel.vesselName+"EVA Kerbal Killed due to no LS - " + iCrew.name);
+                IFIDebug.IFIMess("  EVA Kerbal Killed due to no LS - " + iCrew.name);
                 this.part.explode();
             }
             IFICWLS += 5; // Increase chance of death on next check.        
