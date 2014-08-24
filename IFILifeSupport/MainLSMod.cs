@@ -119,13 +119,13 @@ namespace IFILifeSupport
             IFIDebug.IFIMess(" POD LS Number of crew for using LS == " + Convert.ToString(crewCount));
 
             double resourceRequest = ((Rate_Per_Kerbal * crewCount) * TTtest) * RATE;
-            double ElectricRequest = (Rate_Per_Kerbal * crewCount) * (TTtest * .5);
+            double ElectricRequest = ((Rate_Per_Kerbal * 0.5) * crewCount) * TTtest;
             if (resourceRequest > 0)
             {
                 if (ResourceAval < resourceRequest)
                 {
                     double LSTest = resourceRequest - ResourceAval;
-                    if (LSTest >= 2.0)  // Kill crew if resources run out during unfocus time.
+                    if (LSTest >= 2.0)  // Kill crew if Life Support resource run out during unfocus time.
                     {
                         IFIDebug.IFIMess(" Resource request Greater than Aval Resources --" + Convert.ToString(LSTest));
                         IFICWLS += (float)(LSTest * 10.0);
