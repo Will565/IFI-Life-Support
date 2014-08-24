@@ -136,7 +136,6 @@ namespace IFILifeSupport
 
             IFIDebug.IFIMess("IFI DEBUG -- OnCrewOnEva fired ----");
             EVAReset.EXIT(action.from);
-            
             double resourceRequest = Rate_Per_Kerbal * 60 * 60 * 4;//* Take 4 hours of LS on each eva.
             double IFIResourceAmt = 0.0;
             double IFIResElectric = 0.0;

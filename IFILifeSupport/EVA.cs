@@ -33,8 +33,10 @@ namespace IFILifeSupport
             if (!initialized) Initialize();
             base.OnUpdate();
             Vessel active = this.part.vessel;
+      
             if (active.isEVA == true)
             {
+                
                 double RATE;
                 if (active.mainBody.theName == "Kerbin" && active.altitude <= 3250)
                 {
@@ -64,7 +66,7 @@ namespace IFILifeSupport
                         double resourceRequest = 0.0;
                         double resourceReturn = 0.0;
                         resourceRequest = (Rate_Per_Kerbal * TTtest) * RATE;
-                        double electricRequest = Rate_Per_Kerbal * TTtest * 1.2;
+                        double electricRequest = Rate_Per_Kerbal * TTtest * 0.5;
 
                         if (ResourceAval < resourceRequest)
                             {
@@ -110,25 +112,35 @@ namespace IFILifeSupport
 
         private void Initialize()
         {
-            if (isRescue == false && IFITimer == 0)
-            {
-                double IFIResourceAmt = Rate_Per_Kerbal * 60 * 60 * 4;
-                IFIResourceAmt = this.part.RequestResource("LifeSupport", 0.0 - IFIResourceAmt);
-                IFIResourceAmt = this.part.RequestResource("ElectricCharge", 0.0 - IFIResourceAmt - 2);
-                isRescue = true;
-            }
-            else
-            {
-                isRescue = true;
-            }
             IFIDebug.IFIMess(this.part.vessel.vesselName + " EVA Init(): OnInit Fired ++ EVA");
             if (IFITimer < 1) IFITimer = Convert.ToInt32(Planetarium.fetch.time);
             initialized = true;
-            
-
         }
+        
+       public override void  OnLoad(ConfigNode node)
+        {
+            base.OnLoad(node);
+            Debug.Log("********* IFI EVA LOAD FIRED *******");
+        }
+       public override void OnActive()
+       {
+           base.OnActive();
+           Debug.Log("********* IFI EVA active FIRED *******");
+       }
+       public override void OnAwake()
+       {
+           base.OnAwake();
+           Debug.Log("********* IFI EVA ONAWAKE FIRED *******");
 
-
+           if (isRescue == true)
+           {
+               double IFIResourceAmt = Rate_Per_Kerbal * 60 * 60 * 4;
+               IFIResourceAmt = this.part.RequestResource("LifeSupport", 0.0 - IFIResourceAmt);
+               IFIResourceAmt = this.part.RequestResource("ElectricCharge", 0.0 - IFIResourceAmt - 2);
+               isRescue = false;
+           }
+          
+       }
         private void CrewTest()
         {
 

@@ -119,7 +119,7 @@ namespace IFILifeSupport
             IFIDebug.IFIMess(" POD LS Number of crew for using LS == " + Convert.ToString(crewCount));
 
             double resourceRequest = ((Rate_Per_Kerbal * crewCount) * TTtest) * RATE;
-            double ElectricRequest = (Rate_Per_Kerbal * crewCount) * TTtest;
+            double ElectricRequest = (Rate_Per_Kerbal * crewCount) * (TTtest * .5);
             if (resourceRequest > 0)
             {
                 if (ResourceAval < resourceRequest)
