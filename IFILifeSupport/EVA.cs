@@ -24,8 +24,6 @@ namespace IFILifeSupport
         public float displayRate;
         [KSPField(guiActive = false, isPersistant = true)]
         private int IFITimer; // Used to track LS use on inactive vessels
-        [KSPField(guiActive = false, isPersistant = true)]
-        private bool isRescue; 
 
 
         public override void OnUpdate()
@@ -36,7 +34,6 @@ namespace IFILifeSupport
       
             if (active.isEVA == true)
             {
-                
                 double RATE;
                 if (active.mainBody.theName == "Kerbin" && active.altitude <= 3250)
                 {
@@ -67,30 +64,25 @@ namespace IFILifeSupport
                         double resourceReturn = 0.0;
                         resourceRequest = (Rate_Per_Kerbal * TTtest) * RATE;
                         double electricRequest = Rate_Per_Kerbal * TTtest * 0.5;
-
                         if (ResourceAval < resourceRequest)
                             {
                                 double LSTest = resourceRequest - ResourceAval;
                                 if (LSTest >= 2.0)  // Kill crew if resources run out
                                 {
-                                    IFIDebug.IFIMess(this.part.vessel.vesselName + "-EVA- Resource request Greater than Aval Resources -- " + Convert.ToString(LSTest));
                                     IFICWLS += (float)(LSTest * 10.0);
                                     CrewTest();
                                 }
                                 resourceRequest = ResourceAval;
                             }
-                       
                             resourceReturn = this.part.RequestResource("LifeSupport", resourceRequest);
                         KerbalEVA evaPm = active.FindPartModulesImplementing<KerbalEVA>().Single();
                         if (evaPm && evaPm.lampOn)
                         {
-                            IFIDebug.IFIMess(" EVA Headlamp is ON!! ");
                            electricRequest = electricRequest * 1.5;
                         }
                         double ElectricReturn = this.part.RequestResource("ElectricCharge", electricRequest);
                         IFIDebug.IFIMess("#### KERBAL EVA (" + this.part.vessel.vesselName + ")");
                         IFIDebug.IFIMess("  EVA ELect Resource Return == " + Convert.ToString(ElectricReturn));
-
                         IFIDebug.IFIMess("  EVA LS resource Avalible == " + Convert.ToString(ResourceAval));
                         IFIDebug.IFIMess("  EVA LS Resource Return == " + Convert.ToString(resourceReturn));
                         if (RATE > 0 && resourceReturn <= 0 || ElectricReturn <= 0)
@@ -117,35 +109,10 @@ namespace IFILifeSupport
             initialized = true;
         }
         
-       public override void  OnLoad(ConfigNode node)
-        {
-            base.OnLoad(node);
-            Debug.Log("********* IFI EVA LOAD FIRED *******");
-        }
-       public override void OnActive()
-       {
-           base.OnActive();
-           Debug.Log("********* IFI EVA active FIRED *******");
-       }
-       public override void OnAwake()
-       {
-           base.OnAwake();
-           Debug.Log("********* IFI EVA ONAWAKE FIRED *******");
 
-           if (isRescue == true)
-           {
-               double IFIResourceAmt = Rate_Per_Kerbal * 60 * 60 * 4;
-               IFIResourceAmt = this.part.RequestResource("LifeSupport", 0.0 - IFIResourceAmt);
-               IFIResourceAmt = this.part.RequestResource("ElectricCharge", 0.0 - IFIResourceAmt - 2);
-               isRescue = false;
-           }
-          
-       }
         private void CrewTest()
         {
-
             float rand;
-
             rand = UnityEngine.Random.Range(0.0f, 100.0f);
             if (IFICWLS > rand)
             {
@@ -157,6 +124,7 @@ namespace IFILifeSupport
             }
             IFICWLS += 5; // Increase chance of death on next check.        
         }
+
 
         private double IFIGetAllResources(string IFIResource)
         {
@@ -171,7 +139,6 @@ namespace IFILifeSupport
                     }
                 }
             }
-
             return IFIResourceAmt;
         }
     }
