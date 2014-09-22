@@ -17,6 +17,7 @@ namespace IFILifeSupport
         public static int HoursPerDay { get { return GameSettings.KERBIN_TIME ? 6 : 24; } } // Make sure LS remaining Display conforms to Kerbin time setting.
         private double Rate_Per_Kerbal;
         private float IFICWLS = 15; // Used to track Kerbal death chance after life support runs out.
+
         // Right Click Info display for Part
         [KSPField(guiActive = true, guiName = "Life Support Status", isPersistant = false)]
         public string lifeSupportStatus;
@@ -25,7 +26,7 @@ namespace IFILifeSupport
         [KSPField(guiActive = false, isPersistant = true)]
         private int IFITimer; // Used to track LS use on inactive vessels
         [KSPField(guiActive = false, isPersistant = true)]
-        private float Rate_Per_Kerbal_Hold;
+        private float Rate_Per_Kerbal_Hold; // USed so Vessels in flight have same Usage Rate even when R&D changes to new rate.
 
 #if !DEBUG
         // Debug Button for right click info - TO BE removed after testing.
@@ -49,7 +50,7 @@ namespace IFILifeSupport
 
         public override string GetInfo()
         {
-            return "Interstellar Flight Inc. Life Support Systems MKIV Installed";
+            return "Interstellar Flight Inc. Life Support Systems MK IX Installed";
         }
 
         public override void OnUpdate()
@@ -80,16 +81,14 @@ namespace IFILifeSupport
                     int TTtest = Convert.ToInt32(Planetarium.fetch.time) - IFITimer;
                     double ResourceAval = IFIGetAllResources("LifeSupport");
                     displayRate = (float)((ResourceAval / (Rate_Per_Kerbal * IFIGetAllKerbals())) / HoursPerDay / 60 / 60);
+                    double ElectricChargeAval = IFIGetAllResources("ElectricCharge");
+                    
                     if (!WarpCanceled && displayRate <= 2) { TimeWarp.SetRate(0, true); WarpCanceled = true; } // cancel warp once when caution/warning lvl reached
-                    if (displayRate >= 0 && displayRate <= 2)
-                    {
-                        lifeSupportStatus = "CAUTION";
-                    }
-                    else if (displayRate <= 0)
-                    {
-                        lifeSupportStatus = "Warning!";
-                    }
-                    if (TTtest >= 1800 || EVAReset.Status != "NO" && EVAReset.EVAPart == part ) // only consume resources every half Hour or on enter or exit of kerbal from eva. trying to control lag with large crews
+                    if (WarpCanceled && displayRate > 2) { WarpCanceled = false; }
+                    if (displayRate >= 0 && displayRate <= 2) { lifeSupportStatus = "CAUTION"; }
+                    else if (displayRate <= 0) { lifeSupportStatus = "Warning!"; }
+
+                    if (TTtest >= 1800 || EVAReset.Status != "NO" && EVAReset.EVAPart == part ) // only consume resources every half Hour or on enter or exit of kerbal from eva. trying to control lag with large crews and vessels
                     {
                         IFIDebug.IFIMess("####### START - Call to use Resources - - "+active.vesselName);
                         Use_Life_Support(active, crewCount, ResourceAval, TTtest, RATE);
@@ -107,8 +106,6 @@ namespace IFILifeSupport
 
         private void Use_Life_Support(Vessel active, int crewCount, double ResourceAval, int TTtest, double RATE)
         {
-
-           
             IFIDebug.IFIMess(" Rate per Kerbal " + Convert.ToString((float)((Rate_Per_Kerbal * 1000000)*RATE)));
             IFIDebug.IFIMess(" POD LS Number of Seconds Since last LS use == " + Convert.ToString(TTtest));
             IFIDebug.IFIMess(" POD LS Number of crew in Pod == " + Convert.ToString(crewCount));
@@ -119,7 +116,7 @@ namespace IFILifeSupport
             IFIDebug.IFIMess(" POD LS Number of crew for using LS == " + Convert.ToString(crewCount));
 
             double resourceRequest = ((Rate_Per_Kerbal * crewCount) * TTtest) * RATE;
-            double ElectricRequest = ((Rate_Per_Kerbal * 0.5) * crewCount) * TTtest;
+            double ElectricRequest = (Rate_Per_Kerbal * crewCount) * TTtest;
             if (resourceRequest > 0)
             {
                 if (ResourceAval < resourceRequest)
@@ -134,8 +131,26 @@ namespace IFILifeSupport
                     resourceRequest = ResourceAval;
                 }
                 double resourceReturn = active.rootPart.RequestResource("LifeSupport", resourceRequest);
-                double ElectricReturn = active.rootPart.RequestResource("ElectricCharge", ElectricRequest);
-                IFIDebug.IFIMess(" POD resource Avalible == " + Convert.ToString(ResourceAval));
+                double ElectricReturn;
+                if (TTtest >= 2200)       // This is a check for Solar Power after vehicle comes back active
+                {
+                    int CountSP = 0;
+                    foreach (ModuleDeployableSolarPanel PP in active.FindPartModulesImplementing<ModuleDeployableSolarPanel>().ToList())
+                    {
+                        if (PP && PP.stateString == "EXTENDED") { CountSP += 1; }  // Count Extended unbroken Panels-
+                    }
+                    IFIDebug.IFIMess(" POD Active Solar Panel count is == " + Convert.ToString(CountSP));
+                    double SolarPower = CountSP * 0.51;
+                    SolarPower = SolarPower * TTtest;
+                    ElectricRequest = ElectricRequest - SolarPower;
+                    ElectricReturn = active.rootPart.RequestResource("ElectricCharge", ElectricRequest);
+                    if (ElectricRequest >= 0 && ElectricReturn <= 0) {ElectricReturn = 0 - 1;} else {ElectricReturn = 1;} // Tell System if Electric need was met.
+                }
+                else
+                {   // This is the normal electric use while vehicle is active
+                    ElectricReturn = active.rootPart.RequestResource("ElectricCharge", ElectricRequest);
+                }
+                IFIDebug.IFIMess(" POD LS Resource Avalible == " + Convert.ToString(ResourceAval));
                 IFIDebug.IFIMess(" POD LS Resource Return == " + Convert.ToString(resourceReturn));
                 IFIDebug.IFIMess(" POD Elect Resource Return == " + Convert.ToString(ElectricReturn));
 
@@ -206,7 +221,7 @@ namespace IFILifeSupport
             return IFIResourceAmt;
         }
 
-        private int IFIGetAllKerbals() // Find all Kerbals Hiding on Vessel.
+        private int IFIGetAllKerbals() // Find all Kerbals Hiding on Vessel. Show Life Support Remaining Tag is accurate in each pod on vessel
         {
             int KerbalCount = 0;
             Vessel active = this.part.vessel;
