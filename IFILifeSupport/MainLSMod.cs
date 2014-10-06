@@ -16,7 +16,7 @@ namespace IFILifeSupport
         private bool WarpCanceled = false;
         public static int HoursPerDay { get { return GameSettings.KERBIN_TIME ? 6 : 24; } } // Make sure LS remaining Display conforms to Kerbin time setting.
         private double Rate_Per_Kerbal;
-        private float IFICWLS = 15; // Used to track Kerbal death chance after life support runs out.
+        private float IFICWLS = 25; // Used to track Kerbal death chance after life support runs out.
 
         // Right Click Info display for Part
         [KSPField(guiActive = true, guiName = "Life Support Status", isPersistant = false)]
@@ -190,6 +190,12 @@ namespace IFILifeSupport
             for (int i = 0; i < this.part.protoModuleCrew.Count; i++)
             {
                 rand = UnityEngine.Random.Range(0.0f, 100.0f);
+                IFIDebug.IFIMess("!!!!!!!!");
+                IFIDebug.IFIMess("Testing Crew Death Crewmember=" + this.part.protoModuleCrew[i].name);
+                IFIDebug.IFIMess("Crew Death Chance = " + Convert.ToString(IFICWLS));
+                IFIDebug.IFIMess("Crew Death Roll = " + Convert.ToString(rand));
+                IFIDebug.IFIMess("!!!!!!!!");
+
                 if (IFICWLS > rand)
                 {
                     iCrew = this.part.protoModuleCrew[i];
@@ -198,7 +204,7 @@ namespace IFILifeSupport
                     IFIDebug.IFIMess(this.part.vessel.vesselName+" POD Kerbal Killed due to no LS - " + iCrew.name);
                 }
             }
-            IFICWLS += 5; // Increase chance of death on next check.
+            IFICWLS += 15; // Increase chance of death on next check.
         }
 
         private double IFIGetAllResources(string IFIResource)
