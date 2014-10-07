@@ -30,20 +30,20 @@ namespace IFILifeSupport
 
 #if !DEBUG
         // Debug Button for right click info - TO BE removed after testing.
-        [KSPField(guiActive = true, guiName = "Debug =", isPersistant = false)]
-        public string DebugStatus = "Inactive";
+        [KSPField(guiActive = true, guiName = "Debug Logging", isPersistant = false)]
+        public string DebugStatus = "Disabled";
         [KSPEvent(name = "ToggleDebug", active = true, guiActive = true, guiActiveUnfocused = true, guiName = "LS Debug Info")]
         public void ToggleDebug()
         {
             if (IFIDebug.IsON)
             {
                 IFIDebug.Toggle();
-                DebugStatus = "Inactive";
+                DebugStatus = "Disabled";
             }
             else
             {
                 IFIDebug.Toggle();
-                DebugStatus = "Active";
+                DebugStatus = "Enabled";
             }
         }
 #endif
@@ -77,6 +77,7 @@ namespace IFILifeSupport
                 else
                 {
                     lifeSupportStatus = "Active";
+                    RATE = 1.0;
                 }
                     int TTtest = Convert.ToInt32(Planetarium.fetch.time) - IFITimer;
                     double ResourceAval = IFIGetAllResources("LifeSupport");
@@ -98,7 +99,7 @@ namespace IFILifeSupport
             }  //end of if crew > 0
             else if (crewCount == 0)
             {
-                lifeSupportStatus = "Inactive";
+                lifeSupportStatus = "Pod Standby";
                 this.Fields[1].guiActive = false;
                 IFITimer = Convert.ToInt32(Planetarium.fetch.time);
             }
