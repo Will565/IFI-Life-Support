@@ -162,7 +162,7 @@ namespace IFILifeSupport
                     CrewTest(); // Check for crew death
                 }
                 else
-                { IFICWLS = 15; } // Reset death chance if resources are avalible
+                { IFICWLS = 25; } // Reset death chance if resources are avalible
             }
 
         }
