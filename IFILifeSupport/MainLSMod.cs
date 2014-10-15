@@ -86,7 +86,7 @@ namespace IFILifeSupport
                     
                     if (!WarpCanceled && displayRate <= 2) { TimeWarp.SetRate(0, true); WarpCanceled = true; } // cancel warp once when caution/warning lvl reached
                     if (WarpCanceled && displayRate > 2) { WarpCanceled = false; }
-                    if (displayRate >= 0 && displayRate <= 2) { lifeSupportStatus = "CAUTION"; }
+                    if (displayRate > 0 && displayRate <= 2) { lifeSupportStatus = "CAUTION"; }
                     else if (displayRate <= 0) { lifeSupportStatus = "Warning!"; }
 
                     if (TTtest >= 1800 || EVAReset.Status != "NO" && EVAReset.EVAPart == part ) // only consume resources every half Hour or on enter or exit of kerbal from eva. trying to control lag with large crews and vessels
