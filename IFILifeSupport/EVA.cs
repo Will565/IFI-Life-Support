@@ -120,9 +120,12 @@ namespace IFILifeSupport
                 this.part.RemoveCrewmember(iCrew);// Remove crew from part
                 iCrew.Die();// Kill crew after removal or death will reset to active.
                 IFIDebug.IFIMess("  EVA Kerbal Killed due to no LS - " + iCrew.name);
+                string message = "\n"; message += iCrew.name + ":\n Was killed for Life Support Failure.";
+                MessageSystem.Message m = new MessageSystem.Message("Kerbal Death on EVA", message, MessageSystemButton.MessageButtonColor.RED, MessageSystemButton.ButtonIcons.ALERT);
+                MessageSystem.Instance.AddMessage(m); 
                 this.part.explode();
             }
-            IFICWLS += 5; // Increase chance of death on next check.        
+            IFICWLS += 15; // Increase chance of death on next check.        
         }
 
 

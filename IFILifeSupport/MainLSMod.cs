@@ -127,7 +127,7 @@ namespace IFILifeSupport
                     {
                         IFIDebug.IFIMess(" Resource request Greater than Aval Resources --" + Convert.ToString(LSTest));
                         IFICWLS += (float)(LSTest * 10.0);
-                        CrewTest();
+                        CrewTest(0);
                     }
                     resourceRequest = ResourceAval;
                 }
@@ -159,7 +159,9 @@ namespace IFILifeSupport
                 {
                     IFIDebug.IFIMess(" POD Crew has no LS or Electric Charge Remaining");
                     TimeWarp.SetRate(0, true);
-                    CrewTest(); // Check for crew death
+                    int REASON = 0;
+                    if (ElectricReturn <= 0) { REASON = 1; }
+                    CrewTest(REASON); // Check for crew death
                 }
                 else
                 { IFICWLS = 25; } // Reset death chance if resources are avalible
@@ -184,7 +186,7 @@ namespace IFILifeSupport
             IFIDebug.IFIMess(this.part.vessel.vesselName+" POD Init(): OnInit Fired -- Vessel SOI is -" + active.mainBody.theName);
         }
 
-        private void CrewTest()
+        private void CrewTest(int REASON)
         {
             float rand;
             ProtoCrewMember iCrew;
@@ -203,6 +205,11 @@ namespace IFILifeSupport
                     this.part.RemoveCrewmember(iCrew);// Remove crew from part
                     iCrew.Die();  // Kill crew after removal or death will reset to active.
                     IFIDebug.IFIMess(this.part.vessel.vesselName+" POD Kerbal Killed due to no LS - " + iCrew.name);
+                    string message = ""; message += this.part.vessel.vesselName + "\n\n"; message += iCrew.name + "\n Was killed due to ::";
+                    if (REASON == 1) { message += "No Electric Charge Remaining"; } else { message += "No Life Support Remaining"; }
+                    message += "::";
+                    MessageSystem.Message m = new MessageSystem.Message("Kerbal Death from LifeSupport Failure",message,MessageSystemButton.MessageButtonColor.RED,MessageSystemButton.ButtonIcons.ALERT);
+                    MessageSystem.Instance.AddMessage(m);
                 }
             }
             IFICWLS += 15; // Increase chance of death on next check.
