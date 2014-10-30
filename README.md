@@ -1,6 +1,23 @@
 IFI-Life-Support
 ================
 Released Under GPL3 License.
+ <IFI Life Support Mod>
+    Copyright (C) 2014  Will Schramm
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>
+
+
 I know that there are a few Life support mods in development. They are too intense for my tastes. SO I designed my own.
 
 KSP Forum Post Location
