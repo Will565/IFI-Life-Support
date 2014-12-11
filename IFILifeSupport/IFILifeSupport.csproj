@@ -46,6 +46,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LifeSupportDisplay.cs" />
+    <Compile Include="LifeSupportTracking.cs" />
     <Compile Include="LifeSupportRate.cs" />
     <Compile Include="EVAPartload.cs" />
     <Compile Include="MainLSMod.cs" />

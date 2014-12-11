@@ -14,20 +14,22 @@ namespace IFILifeSupport
         private static double Rate_Per_Kerbal = 0.000046;
         public static double GetRate()
         {
-            return Rate_Per_Kerbal;
+            double Hold_Rate = 0.0;
+            Hold_Rate = GetTechRate();
+            return Hold_Rate;
         }
-        public static double GetTechRate()
+        private static double GetTechRate()
         {
             double Adjustment = 1.00;
             if (ResearchAndDevelopment.Instance != null)
             {
-                Debug.Log("#### IFI Life Support Rate Career Mode Found ####");
+                Adjustment = 1.5;
                 if (ResearchAndDevelopment.GetTechnologyState("advScienceTech") == RDTech.State.Available)
-                { Adjustment = 0.85; Debug.Log("#### Advanced Science Tech Found ####"); }
+                { Adjustment = 0.90; }
                 else if (ResearchAndDevelopment.GetTechnologyState("advExploration") == RDTech.State.Available)
-                { Adjustment = 0.90; Debug.Log("#### Advanced Exploration Found ####"); }
+                { Adjustment = 0.95; }
                 else if (ResearchAndDevelopment.GetTechnologyState("scienceTech") == RDTech.State.Available)
-                { Adjustment = 0.95; Debug.Log("#### Science Tech Found ####"); }
+                { Adjustment = 1.00; }
             }
 
             return Rate_Per_Kerbal * Adjustment;

@@ -24,35 +24,24 @@ namespace IFILifeSupport
         }
         
     }
-    public static class EVAReset
-    {
-        public static string Status = "NO";
-        public static Part EVAPart;
-        public static void EXIT(Part p)
-        {
-            Status = "Exit";
-            EVAPart = p;
-        }
-        public static void ENTER(Part p)
-        {
-            Status = "Enter";
-            EVAPart = p;
-        }
-        public static void RESET()
-        {
-            Status = "NO";
-            EVAPart = null;
-        }
- 
-    }
+
+
     [KSPAddon(KSPAddon.Startup.MainMenu, true)]
     public class ADDEVAS : UnityEngine.MonoBehaviour
     {
-        private static double Rate_Per_Kerbal = LifeSupportRate.GetTechRate();
+        private static double Rate_Per_Kerbal = LifeSupportRate.GetRate();
+
+     public void SetLoadDistance()
+     {
+         float loadDistance = 6000; float unloadDistance = 10000;
+                Vessel.loadDistance = loadDistance;
+                Vessel.unloadDistance = unloadDistance;
+           
+       }
 
         public void Awake()
         {
-            IFIDebug.IFIMess(" IFI Preload LS EVA Install started ++++ ");
+            Debug.Log(" IFI Preload LS EVA Install started ++++ ");
 #if !DEBUG
             if (IFIDebug.IsON) { IFIDebug.Toggle(); }
 #endif
@@ -60,7 +49,7 @@ namespace IFILifeSupport
             GameEvents.onCrewOnEva.Add(OnCrewOnEva11);
             GameEvents.onCrewBoardVessel.Remove(OnCrewBoardVessel11);
             GameEvents.onCrewBoardVessel.Add(OnCrewBoardVessel11); 
-            
+            //GameEvents.onFlightReady.Add(SetLoadDistance);
             
             try
             {
@@ -106,7 +95,6 @@ namespace IFILifeSupport
         private void OnCrewBoardVessel11(GameEvents.FromToAction<Part, Part> action)
         {
             IFIDebug.IFIMess(" IFI DEBUG -- OnCrewBoardVessel fired ----");
-            EVAReset.ENTER(action.to);
             double IFIResourceAmt = 0.0;
             double IFIResElectric = 0.0;
             foreach (PartResource pr in action.from.Resources)
@@ -135,7 +123,6 @@ namespace IFILifeSupport
         {
 
             IFIDebug.IFIMess("IFI DEBUG -- OnCrewOnEva fired ----");
-            EVAReset.EXIT(action.from);
             double resourceRequest = Rate_Per_Kerbal * 60 * 60 * 4;//* Take 4 hours of LS on each eva.
             double IFIResourceAmt = 0.0;
             double IFIResElectric = 0.0;
@@ -162,4 +149,5 @@ namespace IFILifeSupport
             IFIDebug.IFIMess("IFI Life Support Message: EVA - Started - " + action.to.name + " Exited Vessel - Took " + Convert.ToString(resourceRequest) + " Life Support  and " + Convert.ToString(IFIResElectric) + " Electric Charge ");
         }
     }
-}
+
+ }
