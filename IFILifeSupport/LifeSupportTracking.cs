@@ -12,7 +12,7 @@ namespace IFILifeSupport
 [KSPAddon(KSPAddon.Startup.SpaceCentre, true)]
 public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
 {
-   
+    private int IFITIM = 0;
      // Stock APP Toolbar - Stavell
  private ApplicationLauncherButton IFI_Button = null;
  private Texture2D IFI_button_grn = new Texture2D(38, 38, TextureFormat.ARGB32, false);
@@ -128,12 +128,12 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
                     if (LS_ALERT_LEVEL < 2 && days_rem <= 3) 
                     {
                         IFI_Button.SetTexture(IFI_button_cau); LS_ALERT_LEVEL = 2;
-                        if (LifeSupportDisplay.WarpCancel) { TimeWarp.SetRate(0, true); }
+                        if (LifeSupportDisplay.WarpCancel && TimeWarp.CurrentRate > 1) { TimeWarp.SetRate(0, true); }
                     }
                     if (LS_ALERT_LEVEL < 3 && days_rem <= 1) 
                     {
                         IFI_Button.SetTexture(IFI_button_danger); LS_ALERT_LEVEL = 3;
-                        if (LifeSupportDisplay.WarpCancel) { TimeWarp.SetRate(0, true); }
+                        if (LifeSupportDisplay.WarpCancel && TimeWarp.CurrentRate > 1) { TimeWarp.SetRate(0, true); }
                     }
                     }
                }
@@ -150,7 +150,7 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
         DontDestroyOnLoad(this);
         CancelInvoke();
         InvokeRepeating("Life_Support_Update", 1, 180);
-       
+        InvokeRepeating("display_active", 1, 1);
     }
 
 
@@ -407,7 +407,12 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
 
     public void display_active()
     {
-        if (!HighLogic.LoadedSceneIsEditor && LifeSupportDisplay.LSDisplayActive) Life_Support_Update();
+        IFITIM++;
+        if (!HighLogic.LoadedSceneIsEditor && ((LifeSupportDisplay.LSDisplayActive && IFITIM > 4) || TimeWarp.CurrentRate > 1))
+        {
+            Life_Support_Update();
+            IFITIM = 0;
+        }
     }
 
 
