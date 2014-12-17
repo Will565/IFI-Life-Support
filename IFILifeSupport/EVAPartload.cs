@@ -66,7 +66,7 @@ namespace IFILifeSupport
             LifeSupport.flowState = true;
             LifeSupport.flowMode = PartResource.FlowMode.Both;
             LifeSupport.part = PartLoader.getPartInfoByName("kerbalEVA").partPrefab;
-            LifeSupport.amount = 0;
+            LifeSupport.amount = MaxLS;
 
 
             try
@@ -82,7 +82,7 @@ namespace IFILifeSupport
             LifeSupport.flowState = true;
             LifeSupport.flowMode = PartResource.FlowMode.Both;
             LifeSupport.part = PartLoader.getPartInfoByName("kerbalEVA").partPrefab;
-            LifeSupport.amount = 0;
+            LifeSupport.amount = MaxLS * 1.5; ;
             try
             {
                 PartLoader.getPartInfoByName("kerbalEVA").partPrefab.Resources.list.Add(LifeSupport); ;
@@ -125,7 +125,8 @@ namespace IFILifeSupport
             IFIDebug.IFIMess("IFI DEBUG -- OnCrewOnEva fired ----");
             double resourceRequest = Rate_Per_Kerbal * 60 * 60 * 4;//* Take 4 hours of LS on each eva.
             double IFIResourceAmt = 0.0;
-            double IFIResElectric = 0.0;
+            double IFIResElectric = resourceRequest * 1.5;
+            double IFIResReturn = 0.0;
             try
             {
                 foreach (PartResource pr in action.to.Resources)
@@ -140,13 +141,17 @@ namespace IFILifeSupport
                     }
                 }
             }
-            catch (Exception ex) { IFIDebug.IFIMess(" IFI Exception +addmodule+ " + ex.Message); }
-            IFIResElectric = action.from.RequestResource("ElectricCharge", resourceRequest * 1.5);
-            IFIResElectric = action.to.RequestResource("ElectricCharge", 0.0 - IFIResElectric);
-            resourceRequest -= IFIResourceAmt;
-            resourceRequest = action.from.RequestResource("LifeSupport", resourceRequest);
-            resourceRequest = action.to.RequestResource("LifeSupport", 0.0 - resourceRequest);
-            IFIDebug.IFIMess("IFI Life Support Message: EVA - Started - " + action.to.name + " Exited Vessel - Took " + Convert.ToString(resourceRequest) + " Life Support  and " + Convert.ToString(IFIResElectric) + " Electric Charge ");
+            catch (Exception ex) { IFIDebug.IFIMess(" IFI Exception +ON EVA RESOURCE TRANSFER+ " + ex.Message); }
+            IFIResReturn = action.from.RequestResource("ElectricCharge", resourceRequest * 1.5);
+            IFIResElectric -= IFIResReturn;
+            IFIResReturn = action.to.RequestResource("ElectricCharge", IFIResElectric);
+            IFIResElectric = resourceRequest * 1.5;
+            IFIResElectric -= IFIResReturn;
+            IFIResReturn = 0.0;
+           IFIResReturn = action.from.RequestResource("LifeSupport", resourceRequest);
+            resourceRequest -= IFIResReturn;
+            resourceRequest = action.to.RequestResource("LifeSupport", resourceRequest);
+            IFIDebug.IFIMess("IFI Life Support Message: EVA - Started - " + action.to.name + " Exited Vessel - Took " + Convert.ToString(IFIResReturn) + " Life Support  and " + Convert.ToString(IFIResElectric) + " Electric Charge ");
         }
     }
 

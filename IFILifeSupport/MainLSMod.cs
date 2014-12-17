@@ -14,7 +14,6 @@ namespace IFILifeSupport
 
         public bool initialized = false;
         public static int HoursPerDay { get { return GameSettings.KERBIN_TIME ? 6 : 24; } } // Make sure LS remaining Display conforms to Kerbin time setting.
-        private float IFICWLS = 25; // Used to track Kerbal death chance after life support runs out.
 
         // Right Click Info display for Part
         [KSPField(guiActive = true, guiName = "Life Support Status", isPersistant = false)]

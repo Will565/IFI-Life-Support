@@ -23,11 +23,11 @@ namespace IFILifeSupport
             double Adjustment = 1.00;
             if (ResearchAndDevelopment.Instance != null)
             {
-                Adjustment = 1.5;
+                Adjustment = 1.25;
                 if (ResearchAndDevelopment.GetTechnologyState("advScienceTech") == RDTech.State.Available)
-                { Adjustment = 0.90; }
+                { Adjustment = 0.80; }
                 else if (ResearchAndDevelopment.GetTechnologyState("advExploration") == RDTech.State.Available)
-                { Adjustment = 0.95; }
+                { Adjustment = 0.90; }
                 else if (ResearchAndDevelopment.GetTechnologyState("scienceTech") == RDTech.State.Available)
                 { Adjustment = 1.00; }
             }

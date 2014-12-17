@@ -19,12 +19,14 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
  private Texture2D IFI_button_cau = new Texture2D(38, 38, TextureFormat.ARGB32, false);
  private Texture2D IFI_button_danger = new Texture2D(38, 38, TextureFormat.ARGB32, false);
  private bool IFI_Texture_Load = false;
+
+ private bool KerbalEVARescueDetect = false;
  private int IFITimer = Convert.ToInt32(Planetarium.fetch.time);
  private int IFICWLS = 25;
  private string[,] LS_Status_Hold;
  private int LS_Status_Hold_Count;
  public static int HoursPerDay { get { return GameSettings.KERBIN_TIME ? 6 : 24; } } // Make sure LS remaining Display conforms to Kerbin time setting.
-
+ private bool Went_to_Main = false;
  private void OnGUIApplicationLauncherReady()
  {
      // Create the button in the KSP AppLauncher
@@ -67,7 +69,16 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
     {
         if (HighLogic.LoadedScene == GameScenes.LOADING || HighLogic.LoadedSceneIsEditor || !HighLogic.LoadedSceneIsGame)
             return; //Don't do anything while the game is loading
-
+        if (HighLogic.LoadedScene == GameScenes.MAINMENU)
+        {
+            Went_to_Main = true;
+            return; // Don't Run at main menu and reset IFITimer
+        }
+        if (Went_to_Main)
+        {
+            IFITimer = Convert.ToInt32(Planetarium.fetch.time);
+            Went_to_Main = false;
+        }
         int Elapesed_Time = Convert.ToInt32(Planetarium.fetch.time) - IFITimer;
         IFITimer = Convert.ToInt32(Planetarium.fetch.time);
         IFI_Button.SetTexture(IFI_button_grn); int LS_ALERT_LEVEL = 1;
@@ -106,11 +117,18 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
                     }
                     if (IFI_Crew > 0.0)
                     {
+                        
+
                         double LS_Use = LifeSupportRate.GetRate();
                         if (IFI_Location == "Kerbin" && IFI_ALT <= 12123) { LS_Use *= 0.50; }
                         LS_Use *= IFI_Crew;
                         LS_Use *= Elapesed_Time;
-                        if (LS_Use > 0.0) { double rtest = IFIUSEResources("LifeSupport", vessel, vessel.loaded, LS_Use); }
+                        if (LS_Use > 0.0) {
+                            double rtest = IFIUSEResources("LifeSupport", vessel, vessel.loaded, LS_Use);
+                            if (vessel.loaded)
+                         rtest = IFIUSEResources("ElectricCharge", vessel, vessel.loaded, LS_Use * 1.5); 
+                        
+                        }
 
 
                     LSAval = IFIGetAllResources("LifeSupport",vessel,vessel.loaded);
@@ -121,11 +139,31 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
                         string H_Crew = Convert.ToString(IFI_Crew);
                         if (vessel.vesselType == VesselType.EVA) { H_Crew = "EVA"; }
                         LS_Status_Hold[LS_Status_Hold_Count, 2] = H_Crew;
-                    LS_Status_Hold[LS_Status_Hold_Count, 3] = Convert.ToString(Math.Round(LSAval, 4));
-                    LS_Status_Hold[LS_Status_Hold_Count, 4] = Convert.ToString(Math.Round(days_rem, 2));
+                        if (vessel.vesselType == VesselType.EVA && KerbalEVARescueDetect)
+                        {
+                            LS_Status_Hold[LS_Status_Hold_Count, 3] = "RESCUE";
+                            LS_Status_Hold[LS_Status_Hold_Count, 4] = "RESCUE";
+                            LSAval = 200.0;
+                            days_rem = 10.0;
+                        }
+                        else
+                        {
+                            LS_Status_Hold[LS_Status_Hold_Count, 3] = Convert.ToString(Math.Round(LSAval, 4));
+                            LS_Status_Hold[LS_Status_Hold_Count, 4] = Convert.ToString(Math.Round(days_rem, 2));
+                        }
                     LS_Status_Hold_Count += 1;
+                    if (vessel.loaded)
+                    {
+                        LSAval = IFIGetAllResources("ElectricCharge", vessel, vessel.loaded);
+                        if (LSAval < 10)
+                        {
+                            days_rem = 2.5;
+                            if (LSAval < 5) { days_rem = .5; }
+                        }
+ 
+                    }
                   
-                    if (LS_ALERT_LEVEL < 2 && days_rem <= 3) 
+                    if (LS_ALERT_LEVEL < 2 && days_rem < 3) 
                     {
                         IFI_Button.SetTexture(IFI_button_cau); LS_ALERT_LEVEL = 2;
                         if (LifeSupportDisplay.WarpCancel && TimeWarp.CurrentRate > 1) { TimeWarp.SetRate(0, true); }
@@ -187,8 +225,9 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
                 }
             }
             }
-            else
+            else // Kerbal EVA code
             {
+                
                 foreach (ProtoPartSnapshot p in IV.protoVessel.protoPartSnapshots)
                 {
                     foreach (ProtoPartResourceSnapshot r in p.resources)
@@ -211,49 +250,61 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
  
     private double IFIUSEResources(string IFIResource, Vessel IV, bool ISLoaded, double UR_Amount)
 {
+
     double Temp_Resource = UR_Amount;
     if (ISLoaded)
     {
-        double ALL_Resorces = IFIGetAllResources("LifeSupport", IV, true);
+        KerbalEVARescueDetect = false;
+        double ALL_Resorces = IFIGetAllResources(IFIResource, IV, true);
         if (ALL_Resorces < UR_Amount)
         {
-            double TEST_Mod = (UR_Amount - ALL_Resorces) * 10000;
-            Temp_Resource = IV.rootPart.RequestResource("LifeSupport", ALL_Resorces);
+            double TEST_Mod = (UR_Amount - ALL_Resorces) * 100000;
+            Temp_Resource = IV.rootPart.RequestResource(IFIResource, ALL_Resorces);
             IFI_Check_Kerbals(IV, TEST_Mod);
         }
         else
         {
-            Temp_Resource = IV.rootPart.RequestResource("LifeSupport", UR_Amount);
+            Temp_Resource = IV.rootPart.RequestResource(IFIResource, UR_Amount);
         }
     }
     else
     {
+        KerbalEVARescueDetect = true;
         foreach (ProtoPartSnapshot p in IV.protoVessel.protoPartSnapshots)
         {
             foreach (ProtoPartResourceSnapshot r in p.resources)
             {
                 if (r.resourceName == IFIResource)
                 {
+                    KerbalEVARescueDetect = false;
                     if (UR_Amount <= 0.0) break;
                     ConfigNode cf = r.resourceValues;
                     double IHold = 0;
                     System.Double.TryParse(cf.GetValue("amount"), out IHold);
-                    UR_Amount -= IHold;
-                    if (UR_Amount <= 0.0)
-                    {
-                        IHold -= Temp_Resource;
-                        string tvt = System.Convert.ToString(IHold);
-                        cf.SetValue("amount", tvt);
-                        UR_Amount = 0.0;
-                    }
-                    else
-                    {
-                        cf.SetValue("amount", "0.0");
-                    }
+                    // Fix for Kerbal rescue Missions
+                   
+                        UR_Amount -= IHold;
+                        if (UR_Amount <= 0.0)
+                        {
+                            IHold -= Temp_Resource;
+                            string tvt = System.Convert.ToString(IHold);
+                            cf.SetValue("amount", tvt);
+                            UR_Amount = 0.0;
+                        }
+                        else
+                        {
+                            cf.SetValue("amount", "0.0");
+                        }
+            
                     Temp_Resource = UR_Amount;
                 }
             }
             if (UR_Amount <= 0.0) break;
+        }
+        if (IV.isEVA && KerbalEVARescueDetect)
+        {
+         IFIDebug.IFIMess("#### IFI LIfeSupport #### Rescue Kerbal Found with No LS Resource TAG Flagging");
+                UR_Amount = 0.0;
         }
         if (UR_Amount > 0.0) { IFI_Check_Kerbals(IV, UR_Amount); }
 
@@ -413,6 +464,8 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
             Life_Support_Update();
             IFITIM = 0;
         }
+        if (HighLogic.LoadedScene == GameScenes.MAINMENU)
+            Went_to_Main = true;
     }
 
 
