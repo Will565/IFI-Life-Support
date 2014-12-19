@@ -21,7 +21,7 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
  private bool IFI_Texture_Load = false;
 
  private bool KerbalEVARescueDetect = false;
- private int IFITimer = Convert.ToInt32(Planetarium.fetch.time);
+ private double IFITimer;
  private int IFICWLS = 25;
  private string[,] LS_Status_Hold;
  private int LS_Status_Hold_Count;
@@ -32,7 +32,7 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
      // Create the button in the KSP AppLauncher
      if (!IFI_Texture_Load)
      {
-        IFITimer = Convert.ToInt32(Planetarium.fetch.time);
+        double IHOLD = IFI_Get_Elasped_Time();
 
          if (GameDatabase.Instance.ExistsTexture("IFILS/Textures/IFI_LS_GRN")) IFI_button_grn = GameDatabase.Instance.GetTexture("IFILS/Textures/IFI_LS_GRN", false);
          if (GameDatabase.Instance.ExistsTexture("IFILS/Textures/IFI_LS_CAU")) IFI_button_cau = GameDatabase.Instance.GetTexture("IFILS/Textures/IFI_LS_CAU", false);
@@ -76,11 +76,10 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
         }
         if (Went_to_Main)
         {
-            IFITimer = Convert.ToInt32(Planetarium.fetch.time);
+            IFITimer = Convert.ToInt32(Planetarium.GetUniversalTime());
             Went_to_Main = false;
         }
-        int Elapesed_Time = Convert.ToInt32(Planetarium.fetch.time) - IFITimer;
-        IFITimer = Convert.ToInt32(Planetarium.fetch.time);
+        double Elapesed_Time = IFI_Get_Elasped_Time();
         IFI_Button.SetTexture(IFI_button_grn); int LS_ALERT_LEVEL = 1;
         if (HighLogic.LoadedSceneIsFlight || HighLogic.LoadedScene == GameScenes.TRACKSTATION || HighLogic.LoadedScene == GameScenes.SPACECENTER)
         {
@@ -117,16 +116,17 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
                     }
                     if (IFI_Crew > 0.0)
                     {
-                        
 
-                        double LS_Use = LifeSupportRate.GetRate();
-                        if (IFI_Location == "Kerbin" && IFI_ALT <= 12123) { LS_Use *= 0.50; }
+
+                        double LS_Use = LifeSupportRate.GetRate(); bool USE_Electric = true;
+                        if (IFI_Location == "Kerbin" && IFI_ALT <= 12123) { LS_Use *= 0.20; USE_Electric = false;  }
+                        if (IFI_Location == "Laythe" && IFI_ALT <= 6123) { LS_Use *= 0.75; USE_Electric = false; }
+                        
                         LS_Use *= IFI_Crew;
                         LS_Use *= Elapesed_Time;
                         if (LS_Use > 0.0) {
-                            double rtest = IFIUSEResources("LifeSupport", vessel, vessel.loaded, LS_Use);
-                            if (vessel.loaded)
-                         rtest = IFIUSEResources("ElectricCharge", vessel, vessel.loaded, LS_Use * 1.5); 
+                            double rtest = IFIUSEResources("LifeSupport", vessel, vessel.loaded, LS_Use);                           
+                            if (USE_Electric) { rtest = IFIUSEResources("ElectricCharge", vessel, vessel.loaded, LS_Use * 1.5); }
                         
                         }
 
@@ -183,11 +183,10 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
 
     public void Awake()
     {
-        IFITimer = Convert.ToInt32(Planetarium.fetch.time);
+        IFITimer = Convert.ToInt32(Planetarium.GetUniversalTime());
         GameEvents.onGUIApplicationLauncherReady.Add(OnGUIApplicationLauncherReady);
         DontDestroyOnLoad(this);
         CancelInvoke();
-        InvokeRepeating("Life_Support_Update", 1, 180);
         InvokeRepeating("display_active", 1, 1);
     }
 
@@ -250,8 +249,15 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
  
     private double IFIUSEResources(string IFIResource, Vessel IV, bool ISLoaded, double UR_Amount)
 {
-
     double Temp_Resource = UR_Amount;
+    if (IFIResource == "ElectricCharge")
+    {
+        if (!ISLoaded) return 0.0;
+      int CountSP = IV.FindPartModulesImplementing<ModuleDeployableSolarPanel>().Count;
+         IFIDebug.IFIMess(" POD  Solar Panel count is == " + Convert.ToString(CountSP));
+        
+        if (CountSP > 0) return 0.0;
+    }
     if (ISLoaded)
     {
         KerbalEVARescueDetect = false;
@@ -270,6 +276,7 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
     else
     {
         KerbalEVARescueDetect = true;
+        
         foreach (ProtoPartSnapshot p in IV.protoVessel.protoPartSnapshots)
         {
             foreach (ProtoPartResourceSnapshot r in p.resources)
@@ -459,7 +466,7 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
     public void display_active()
     {
         IFITIM++;
-        if (!HighLogic.LoadedSceneIsEditor && ((LifeSupportDisplay.LSDisplayActive && IFITIM > 4) || TimeWarp.CurrentRate > 1))
+        if (!HighLogic.LoadedSceneIsEditor && ((LifeSupportDisplay.LSDisplayActive && IFITIM > 3) || (TimeWarp.CurrentRate > 800) || IFITIM > 100))
         {
             Life_Support_Update();
             IFITIM = 0;
@@ -473,7 +480,10 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
         {
             if (LifeSupportDisplay.LSDisplayActive && !HighLogic.LoadedSceneIsEditor && HighLogic.LoadedSceneIsGame)
             {
-                LifeSupportDisplay.infoWindowPos = GUILayout.Window(99988, LifeSupportDisplay.infoWindowPos, LSInfoWindow, "IFI Vessel Life Support Status Display",LifeSupportDisplay.layoutOptions);
+
+                string TITLE = "IFI Vessel Life Support Status Display ";
+
+                LifeSupportDisplay.infoWindowPos = GUILayout.Window(99988, LifeSupportDisplay.infoWindowPos, LSInfoWindow, TITLE ,LifeSupportDisplay.layoutOptions);
             }
 		}
 
@@ -512,9 +522,19 @@ if (LS_Status_Hold_Count > 0)
         GUI.EndScrollView();
         
         LifeSupportDisplay.WarpCancel = GUI.Toggle(new Rect(10,416,400,20),LifeSupportDisplay.WarpCancel, "Auto Cancel Warp on Low Life Support");
-        
+ //       GUILayout.BeginHorizontal(GUILayout.Width(400f));
+   //     GuiUtils.SimpleTextBox("Safe Distance", autopilot.overridenSafeDistance, "m");
+     //   GUILayout.EndHorizontal();
 			GUI.DragWindow();
 		}
+    private double IFI_Get_Elasped_Time()
+    {
+        double CurrTime = Planetarium.GetUniversalTime();
+        double IHOLD = CurrTime - IFITimer;
+            
+        IFITimer = CurrTime;
+        return IHOLD;
+    }
 
 
 }
