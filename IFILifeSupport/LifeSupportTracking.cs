@@ -27,6 +27,7 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
  private int LS_Status_Hold_Count;
  public static int HoursPerDay { get { return GameSettings.KERBIN_TIME ? 6 : 24; } } // Make sure LS remaining Display conforms to Kerbin time setting.
  private bool Went_to_Main = false;
+
  private void OnGUIApplicationLauncherReady()
  {
      // Create the button in the KSP AppLauncher
@@ -166,12 +167,12 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
                     if (LS_ALERT_LEVEL < 2 && days_rem < 3) 
                     {
                         IFI_Button.SetTexture(IFI_button_cau); LS_ALERT_LEVEL = 2;
-                        if (LifeSupportDisplay.WarpCancel && TimeWarp.CurrentRate > 1) { TimeWarp.SetRate(0, true); }
+                        if (LifeSupportDisplay.WarpCancel && TimeWarp.CurrentRate > 1) { TimeWarp.SetRate(0, false); }
                     }
                     if (LS_ALERT_LEVEL < 3 && days_rem <= 1) 
                     {
                         IFI_Button.SetTexture(IFI_button_danger); LS_ALERT_LEVEL = 3;
-                        if (LifeSupportDisplay.WarpCancel && TimeWarp.CurrentRate > 1) { TimeWarp.SetRate(0, true); }
+                        if (LifeSupportDisplay.WarpCancel && TimeWarp.CurrentRate > 1) { TimeWarp.SetRate(0, false); }
                     }
                     }
                }
@@ -266,7 +267,7 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
         {
             double TEST_Mod = (UR_Amount - ALL_Resorces) * 100000;
             Temp_Resource = IV.rootPart.RequestResource(IFIResource, ALL_Resorces);
-            IFI_Check_Kerbals(IV, TEST_Mod);
+            if (IFIResource == "ElectricCharge") { IFI_Check_Kerbals(IV, -15); } else { IFI_Check_Kerbals(IV, TEST_Mod); }
         }
         else
         {
