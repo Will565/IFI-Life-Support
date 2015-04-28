@@ -31,13 +31,7 @@ namespace IFILifeSupport
     {
         private static double Rate_Per_Kerbal = LifeSupportRate.GetRate();
 
-     public void SetLoadDistance()
-     {
-         float loadDistance = 6000; float unloadDistance = 10000;
-                Vessel.loadDistance = loadDistance;
-                Vessel.unloadDistance = unloadDistance;
-           
-       }
+    
 
         public void Awake()
         {

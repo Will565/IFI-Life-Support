@@ -52,19 +52,16 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
      { Life_Support_Update(); }
  }
 
-
  private void GUIToggle()
  {
      Life_Support_Update();
      LifeSupportDisplay.LSDisplayActive = !LifeSupportDisplay.LSDisplayActive;       
  }
 
-
     private void ResetButton()
  {
      IFI_Button.SetTexture(IFI_button_grn);
  }
-
 
     public void Life_Support_Update()
     {
@@ -181,7 +178,6 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
           }
     }
 
-
     public void Awake()
     {
         IFITimer = Convert.ToInt32(Planetarium.GetUniversalTime());
@@ -190,7 +186,6 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
         CancelInvoke();
         InvokeRepeating("display_active", 1, 1);
     }
-
 
     private double IFIGetAllResources(string IFIResource, Vessel IV, bool ISLoaded)
         {
@@ -247,7 +242,6 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
             return IFIResourceAmt;
         }
 
- 
     private double IFIUSEResources(string IFIResource, Vessel IV, bool ISLoaded, double UR_Amount)
 {
     double Temp_Resource = UR_Amount;
@@ -321,7 +315,6 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
     return UR_Amount;
 }
 
-
     private void CrewTestEVA(Vessel IV, double l)
     {
         
@@ -388,12 +381,11 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
             string message = ""; message += p.vessel.vesselName + "\n\n"; message += iCrew.name + "\n Was killed due to ::";
             if (REASON == 1) { message += "No Electric Charge Remaining"; } else { message += "No Life Support Remaining"; }
             message += "::";
-            MessageSystem.Message m = new MessageSystem.Message("Kerbal Death from LifeSupport Failure", message, MessageSystemButton.MessageButtonColor.RED, MessageSystemButton.ButtonIcons.ALERT);
+            MessageSystem.Message m = new MessageSystem.Message("Kerbal Death from LifeSupport System", message, MessageSystemButton.MessageButtonColor.RED, MessageSystemButton.ButtonIcons.ALERT);
             MessageSystem.Instance.AddMessage(m);
         }
     }
 }
-
 
     private void CrewTestProto(int REASON, ProtoPartSnapshot p, double l)
     {
@@ -427,7 +419,6 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
             }
         }
     }
-
 
     private void IFI_Check_Kerbals(Vessel IV, double l) // Find All Kerbals Hiding on Vessel 
         {
@@ -463,7 +454,6 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
             }
     }
 
-
     public void display_active()
     {
         IFITIM++;
@@ -476,7 +466,6 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
             Went_to_Main = true;
     }
 
-
     private void OnGUI()
         {
             if (LifeSupportDisplay.LSDisplayActive && !HighLogic.LoadedSceneIsEditor && HighLogic.LoadedSceneIsGame)
@@ -487,7 +476,6 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
                 LifeSupportDisplay.infoWindowPos = GUILayout.Window(99988, LifeSupportDisplay.infoWindowPos, LSInfoWindow, TITLE ,LifeSupportDisplay.layoutOptions);
             }
 		}
-
 			
 	private void LSInfoWindow(int windowId){
         float LS_Row = 20;
@@ -528,6 +516,7 @@ if (LS_Status_Hold_Count > 0)
      //   GUILayout.EndHorizontal();
 			GUI.DragWindow();
 		}
+
     private double IFI_Get_Elasped_Time()
     {
         double CurrTime = Planetarium.GetUniversalTime();
