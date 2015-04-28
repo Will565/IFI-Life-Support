@@ -44,7 +44,7 @@ namespace IFILifeSupport
 
         public override string GetInfo()
         {
-            return "Interstellar Flight Inc. Life Support Systems MK XIII Installed";
+            return "Interstellar Flight Inc. Life Support Systems MK XV Installed";
         }
     
  
