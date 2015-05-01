@@ -44,45 +44,8 @@ namespace IFILifeSupport
             GameEvents.onCrewBoardVessel.Remove(OnCrewBoardVessel11);
             GameEvents.onCrewBoardVessel.Add(OnCrewBoardVessel11); 
             //GameEvents.onFlightReady.Add(SetLoadDistance);
-            
-            try
-            {
-                PartLoader.getPartInfoByName("kerbalEVA").partPrefab.AddModule("IFILifeSupportEVA");
-                IFIDebug.IFIMess(" IFI Preload ++Module++  Module Added");
-            }
-            catch (Exception ex) { IFIDebug.IFIMess("EVA IFI Exception +addmodule+ " + ex.Message); }
-
-
-            double MaxLS = Rate_Per_Kerbal * 60 * 60 * 4;
-            PartResource LifeSupport = PartLoader.getPartInfoByName("kerbalEVA").partPrefab.gameObject.AddComponent<PartResource>();
-            LifeSupport.SetInfo(PartResourceLibrary.Instance.resourceDefinitions["LifeSupport"]);
-            LifeSupport.maxAmount = MaxLS;
-            LifeSupport.flowState = true;
-            LifeSupport.flowMode = PartResource.FlowMode.Both;
-            LifeSupport.part = PartLoader.getPartInfoByName("kerbalEVA").partPrefab;
-            LifeSupport.amount = MaxLS;
-
-
-            try
-            {
-                PartLoader.getPartInfoByName("kerbalEVA").partPrefab.Resources.list.Add(LifeSupport); ;
-                IFIDebug.IFIMess(" IFI Preload ++LS resource++");
-            }
-            catch (Exception ex) { IFIDebug.IFIMess("  IFI Preload Exception +addresource+" + ex.Message); }
-
-            LifeSupport = PartLoader.getPartInfoByName("kerbalEVA").partPrefab.gameObject.AddComponent<PartResource>();
-            LifeSupport.SetInfo(PartResourceLibrary.Instance.resourceDefinitions["ElectricCharge"]);
-            LifeSupport.maxAmount = MaxLS * 1.5;
-            LifeSupport.flowState = true;
-            LifeSupport.flowMode = PartResource.FlowMode.Both;
-            LifeSupport.part = PartLoader.getPartInfoByName("kerbalEVA").partPrefab;
-            LifeSupport.amount = MaxLS * 1.5; ;
-            try
-            {
-                PartLoader.getPartInfoByName("kerbalEVA").partPrefab.Resources.list.Add(LifeSupport); ;
-                IFIDebug.IFIMess(" IFI Preload ++ ELect resource++");
-            }
-            catch (Exception ex) { IFIDebug.IFIMess("  IFI Preload Exception +addresource+" + ex.Message); }
+            addLSResources("kerbalEVA");
+            addLSResources("kerbalEVAfemale");
         }
 
 
@@ -112,7 +75,48 @@ namespace IFILifeSupport
             IFIDebug.IFIMess("IFI Life Support Message: EVA - Ended - " + action.from.name + " Boarded Vessel - LS Return = " + Convert.ToString(IFIResourceAmt) + " and  Electric" + Convert.ToString(IFIResElectric));
         }
 
-        
+        private void addLSResources(string EvaNAME)
+        {
+            try
+            {
+                PartLoader.getPartInfoByName(EvaNAME).partPrefab.AddModule("IFILifeSupportEVA");
+                IFIDebug.IFIMess(" IFI Preload ++Module++  Module Added");
+            }
+            catch (Exception ex) { IFIDebug.IFIMess("EVA IFI Exception +addmodule+ " + ex.Message); }
+
+
+            double MaxLS = Rate_Per_Kerbal * 60 * 60 * 4;
+            PartResource LifeSupport = PartLoader.getPartInfoByName(EvaNAME).partPrefab.gameObject.AddComponent<PartResource>();
+            LifeSupport.SetInfo(PartResourceLibrary.Instance.resourceDefinitions["LifeSupport"]);
+            LifeSupport.maxAmount = MaxLS;
+            LifeSupport.flowState = true;
+            LifeSupport.flowMode = PartResource.FlowMode.Both;
+            LifeSupport.part = PartLoader.getPartInfoByName(EvaNAME).partPrefab;
+            LifeSupport.amount = MaxLS;
+
+
+            try
+            {
+                PartLoader.getPartInfoByName(EvaNAME).partPrefab.Resources.list.Add(LifeSupport); ;
+                IFIDebug.IFIMess(" IFI Preload ++LS resource++");
+            }
+            catch (Exception ex) { IFIDebug.IFIMess("  IFI Preload Exception +addresource+" + ex.Message); }
+
+            LifeSupport = PartLoader.getPartInfoByName(EvaNAME).partPrefab.gameObject.AddComponent<PartResource>();
+            LifeSupport.SetInfo(PartResourceLibrary.Instance.resourceDefinitions["ElectricCharge"]);
+            LifeSupport.maxAmount = MaxLS * 1.5;
+            LifeSupport.flowState = true;
+            LifeSupport.flowMode = PartResource.FlowMode.Both;
+            LifeSupport.part = PartLoader.getPartInfoByName(EvaNAME).partPrefab;
+            LifeSupport.amount = MaxLS * 1.5; ;
+            try
+            {
+                PartLoader.getPartInfoByName(EvaNAME).partPrefab.Resources.list.Add(LifeSupport); ;
+                IFIDebug.IFIMess(" IFI Preload ++ ELect resource++");
+            }
+            catch (Exception ex) { IFIDebug.IFIMess("  IFI Preload Exception +addresource+" + ex.Message); }
+
+        }
         private void OnCrewOnEva11(GameEvents.FromToAction<Part, Part> action) //Kerbal goes on EVA takes LS With them
         {
 
