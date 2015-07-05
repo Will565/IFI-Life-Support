@@ -123,8 +123,8 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
                         LS_Use *= IFI_Crew;
                         LS_Use *= Elapesed_Time;
                         if (LS_Use > 0.0) {
-                            double rtest = IFIUSEResources("LifeSupport", vessel, vessel.loaded, LS_Use);                           
-                            if (USE_Electric) { rtest = IFIUSEResources("ElectricCharge", vessel, vessel.loaded, LS_Use * 1.5); }
+                            double rtest = IFIUSEResources("LifeSupport", vessel, vessel.loaded, LS_Use, IFI_Crew);                           
+                            if (USE_Electric) { rtest = IFIUSEResources("ElectricCharge", vessel, vessel.loaded, LS_Use * 1.5, IFI_Crew); }
                         
                         }
 
@@ -242,7 +242,7 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
             return IFIResourceAmt;
         }
 
-    private double IFIUSEResources(string IFIResource, Vessel IV, bool ISLoaded, double UR_Amount)
+    private double IFIUSEResources(string IFIResource, Vessel IV, bool ISLoaded, double UR_Amount, int CREWHOLD)
 {
     double Temp_Resource = UR_Amount;
     if (IFIResource == "ElectricCharge")
@@ -271,9 +271,10 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
     else
     {
         KerbalEVARescueDetect = true;
-        
+        int PartCountForShip = 0;
         foreach (ProtoPartSnapshot p in IV.protoVessel.protoPartSnapshots)
         {
+            PartCountForShip++;
             foreach (ProtoPartResourceSnapshot r in p.resources)
             {
                 if (r.resourceName == IFIResource)
@@ -284,6 +285,10 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
                     double IHold = 0;
                     System.Double.TryParse(cf.GetValue("amount"), out IHold);
                     // Fix for Kerbal rescue Missions
+                    if (PartCountForShip <= 2 && CREWHOLD == 1 && IHold <= 0.0)
+                    {
+                        IHold = 3.0;
+                    }
                    
                         UR_Amount -= IHold;
                         if (UR_Amount <= 0.0)

@@ -20,6 +20,9 @@ namespace IFILifeSupport
         public string lifeSupportStatus;
         [KSPField(guiActive = true, guiName = "Life Support", guiUnits = " Days ", guiFormat = "F2", isPersistant = false)]
         public float displayRate;
+        [KSPField(guiActive = false, isPersistant = true)]
+        public bool RescueFlag;
+
 
 #if !DEBUG
         // Debug Button for right click info - TO BE removed after testing.
@@ -70,8 +73,9 @@ namespace IFILifeSupport
                 {
                     lifeSupportStatus = "Active";
                 }
+                
                     double ResourceAval = IFIGetAllResources("LifeSupport");
-                    displayRate = (float)((ResourceAval / (LifeSupportRate.GetRate() * IFIGetAllKerbals())) / HoursPerDay / 60 / 60);
+                     displayRate = (float)((ResourceAval / (LifeSupportRate.GetRate() * IFIGetAllKerbals())) / HoursPerDay / 60 / 60);
                     
             }  //end of if crew > 0
             else if (crewCount == 0)
