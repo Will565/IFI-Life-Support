@@ -25,7 +25,8 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
  private int IFICWLS = 25;
  private string[,] LS_Status_Hold;
  private int LS_Status_Hold_Count;
- public static int HoursPerDay { get { return GameSettings.KERBIN_TIME ? 6 : 24; } } // Make sure LS remaining Display conforms to Kerbin time setting.
+ // Make sure LS remaining Display conforms to Kerbin time setting.
+ public static int HoursPerDay { get { return GameSettings.KERBIN_TIME ? 6 : 24; } }
  private bool Went_to_Main = false;
 
  private void OnGUIApplicationLauncherReady()
@@ -285,7 +286,7 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
                     double IHold = 0;
                     System.Double.TryParse(cf.GetValue("amount"), out IHold);
                     // Fix for Kerbal rescue Missions
-                    if (PartCountForShip <= 2 && CREWHOLD == 1 && IHold <= 0.0)
+                    if (PartCountForShip <= 2 && CREWHOLD == 1 && IHold <= 0.0 && p.pVesselRef.vesselType != VesselType.EVA)
                     {
                         IHold = 3.0;
                     }
@@ -334,29 +335,15 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
                 Part p = IV.rootPart;
                 ProtoCrewMember iCrew = p.protoModuleCrew[0];
                 iCrew.rosterStatus = ProtoCrewMember.RosterStatus.Dead;
-                p.RemoveCrewmember(iCrew);// Remove crew from part
-                iCrew.Die();// Kill crew after removal or death will reset to active.
+                p.Die();
                 IFIDebug.IFIMess(" EVA Kerbal Killed due to no LS - " + iCrew.name);
                 string message = "\n\n\n"; message += iCrew.name + ":\n Was killed for Life Support Failure.";
                 MessageSystem.Message m = new MessageSystem.Message("Kerbal Death on EVA", message, MessageSystemButton.MessageButtonColor.RED, MessageSystemButton.ButtonIcons.ALERT);
                 MessageSystem.Instance.AddMessage(m);
-                p.explode();
             }
             else
             {
-                foreach (ProtoPartSnapshot p in IV.protoVessel.protoPartSnapshots)
-                {
-                    ProtoCrewMember iCrew = p.protoModuleCrew[0];
-                    string Name = iCrew.name;
-                    iCrew.rosterStatus = ProtoCrewMember.RosterStatus.Dead;
-                    p.RemoveCrew(iCrew);
-                    //IV.Die();
-                    IFIDebug.IFIMess(" EVA Kerbal Killed due to no LS - " + Name);
-                    string message = "\n\n\n"; message += Name + ":\n Was killed for Life Support Failure.";
-                   MessageSystem.Message m = new MessageSystem.Message("Kerbal Death on EVA", message, MessageSystemButton.MessageButtonColor.RED, MessageSystemButton.ButtonIcons.ALERT);
-                   MessageSystem.Instance.AddMessage(m);
-                }
- 
+              // Removed Killing Kerbals on EVA when not loaded to fix ghosting bug. 
             }
         }
         
