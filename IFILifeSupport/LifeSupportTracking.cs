@@ -302,7 +302,7 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
                         UR_Amount = 0.0;
                         return 0.0;
                     }
-                    if (RescueTest == 29) { return 0.0; } // DO NOT USE LS ON RESCUE POD TILL CLOSE
+                    if (RescueTest == 29) { return 0.0; } // DO NOT USE LS ON RESCUE POD TILL player gets  CLOSE
                         UR_Amount -= IHold;
                         if (UR_Amount <= 0.0)
                         {
