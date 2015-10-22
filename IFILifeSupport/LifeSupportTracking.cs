@@ -286,11 +286,23 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
                     double IHold = 0;
                     System.Double.TryParse(cf.GetValue("amount"), out IHold);
                     // Fix for Kerbal rescue Missions
-                    if (PartCountForShip <= 2 && CREWHOLD == 1 && IHold <= 0.0 && p.pVesselRef.vesselType != VesselType.EVA)
+                   Int16 RescueTest = -1;
+                   ConfigNode RT = p.pVesselRef.discoveryInfo;
+                   System.Int16.TryParse(RT.GetValue("state"), out RescueTest);
+
+                    if ( PartCountForShip <= 2 && CREWHOLD == 1 && IHold <= 0.0 && RescueTest == 29)
                     {
-                        IHold = 3.0;
+                        // Add Resources to Rescue Contract POD 1 time
+                        IFIDebug.IFIMess("#### IFI LIfeSupport #### Rescue POD Found with No LS Resource TAG Flagging --"+Convert.ToString(RescueTest));
+                      
+                        IHold = 5.0;
+                        IHold -= Temp_Resource;
+                        string tvt = System.Convert.ToString(IHold);
+                        cf.SetValue("amount", tvt);
+                        UR_Amount = 0.0;
+                        return 0.0;
                     }
-                   
+                    if (RescueTest == 29) { return 0.0; } // DO NOT USE LS ON RESCUE POD TILL CLOSE
                         UR_Amount -= IHold;
                         if (UR_Amount <= 0.0)
                         {
