@@ -9,7 +9,7 @@ using KSP;
 
 namespace IFILifeSupport
 {
-    public class IFILifeSupport : PartModule  // Life Support Consumption Module
+    public class IFILifeSupport : PartModule  // Life Support Tracking on Pods
     {
 
         public bool initialized = false;
@@ -22,8 +22,6 @@ namespace IFILifeSupport
         public float displayRate;
         [KSPField(guiActive = false, isPersistant = true)]
         public bool RescueFlag;
-
-
 #if !DEBUG
         // Debug Button for right click info - TO BE removed after testing.
         [KSPField(guiActive = true, guiName = "Debug Logging", isPersistant = false)]

@@ -50,8 +50,8 @@
     <Compile Include="LifeSupportTracking.cs" />
     <Compile Include="LifeSupportRate.cs" />
     <Compile Include="EVAPartload.cs" />
-    <Compile Include="MainLSMod.cs" />
-    <Compile Include="EVA.cs" />
+    <Compile Include="PodPartModule.cs" />
+    <Compile Include="EVAPartModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

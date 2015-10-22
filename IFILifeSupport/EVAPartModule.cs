@@ -9,7 +9,7 @@ using KSP;
 
 namespace IFILifeSupport
 {
-    public class IFILifeSupportEVA : PartModule  // Life Support Consumption Module for EVA
+    public class IFILifeSupportEVA : PartModule  // Life Support Tracking for RT Click Menu EVA
     {
 
         public bool initialized = false;
