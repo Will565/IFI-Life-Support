@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP.IO;
 using KSP;
+using KSP.UI.Screens;
 
 namespace IFILifeSupport
 {
@@ -117,16 +118,14 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
                     {
 
 
-                        double LS_Use = LifeSupportRate.GetRate(); bool USE_Electric = true;
-                        if (IFI_Location == "Kerbin" && IFI_ALT <= 12123) { LS_Use *= 0.20; USE_Electric = false;  }
-                        if (IFI_Location == "Laythe" && IFI_ALT <= 6123) { LS_Use *= 0.75; USE_Electric = false; }
+                        double LS_Use = LifeSupportRate.GetRate();
+                        if (IFI_Location == "Kerbin" && IFI_ALT <= 12123) { LS_Use *= 0.20;  }
+                        if (IFI_Location == "Laythe" && IFI_ALT <= 6123) { LS_Use *= 0.75;  }
                         
                         LS_Use *= IFI_Crew;
                         LS_Use *= Elapesed_Time;
                         if (LS_Use > 0.0) {
                             double rtest = IFIUSEResources("LifeSupport", vessel, vessel.loaded, LS_Use, IFI_Crew);                           
-                            if (USE_Electric) { rtest = IFIUSEResources("ElectricCharge", vessel, vessel.loaded, LS_Use * 1.5, IFI_Crew); }
-                        
                         }
 
 
@@ -151,16 +150,6 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
                             LS_Status_Hold[LS_Status_Hold_Count, 4] = Convert.ToString(Math.Round(days_rem, 2));
                         }
                     LS_Status_Hold_Count += 1;
-                    if (vessel.loaded)
-                    {
-                        LSAval = IFIGetAllResources("ElectricCharge", vessel, vessel.loaded);
-                        if (LSAval < 10)
-                        {
-                            days_rem = 2.5;
-                            if (LSAval < 5) { days_rem = .5; }
-                        }
- 
-                    }
                   
                     if (LS_ALERT_LEVEL < 2 && days_rem < 3) 
                     {
@@ -246,14 +235,7 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
     private double IFIUSEResources(string IFIResource, Vessel IV, bool ISLoaded, double UR_Amount, int CREWHOLD)
 {
     double Temp_Resource = UR_Amount;
-    if (IFIResource == "ElectricCharge")
-    {
-        if (!ISLoaded) return 0.0;
-      int CountSP = IV.FindPartModulesImplementing<ModuleDeployableSolarPanel>().Count;
-         IFIDebug.IFIMess(" POD  Solar Panel count is == " + Convert.ToString(CountSP));
-        
-        if (CountSP > 0) return 0.0;
-    }
+    
     if (ISLoaded)
     {
         KerbalEVARescueDetect = false;
@@ -262,7 +244,6 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
         {
             double TEST_Mod = (UR_Amount - ALL_Resorces) * 100000;
             Temp_Resource = IV.rootPart.RequestResource(IFIResource, ALL_Resorces);
-            if (IFIResource == "ElectricCharge") { IFI_Check_Kerbals(IV, -15); } else { IFI_Check_Kerbals(IV, TEST_Mod); }
         }
         else
         {
@@ -383,7 +364,6 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
             iCrew.Die();  // Kill crew after removal or death will reset to active.
             IFIDebug.IFIMess(p.vessel.vesselName + " POD Kerbal Killed due to no LS - " + iCrew.name);
             string message = ""; message += p.vessel.vesselName + "\n\n"; message += iCrew.name + "\n Was killed due to ::";
-            if (REASON == 1) { message += "No Electric Charge Remaining"; } else { message += "No Life Support Remaining"; }
             message += "::";
             MessageSystem.Message m = new MessageSystem.Message("Kerbal Death from LifeSupport System", message, MessageSystemButton.MessageButtonColor.RED, MessageSystemButton.ButtonIcons.ALERT);
             MessageSystem.Instance.AddMessage(m);
@@ -415,7 +395,6 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
             
                 IFIDebug.IFIMess(p.pVesselRef.vesselName + " POD Kerbal Killed due to no LS - " + iCrew.name);
                 string message = ""; message += p.pVesselRef.vesselName + "\n\n"; message += iCrew.name + "\n Was killed due to ::";
-                if (REASON == 1) { message += "No Electric Charge Remaining"; } else { message += "No Life Support Remaining"; }
                 message += "::";
                 MessageSystem.Message m = new MessageSystem.Message("Kerbal Death from LifeSupport Failure", message, MessageSystemButton.MessageButtonColor.RED, MessageSystemButton.ButtonIcons.ALERT);
                 MessageSystem.Instance.AddMessage(m);
