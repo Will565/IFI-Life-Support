@@ -60,7 +60,7 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
      LifeSupportDisplay.LSDisplayActive = !LifeSupportDisplay.LSDisplayActive;       
  }
 
-    private void ResetButton()
+ private void ResetButton()
  {
      IFI_Button.SetTexture(IFI_button_grn);
  }
@@ -68,7 +68,7 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
     public void Life_Support_Update()
     {
         if (HighLogic.LoadedScene == GameScenes.LOADING || HighLogic.LoadedSceneIsEditor || !HighLogic.LoadedSceneIsGame)
-            return; //Don't do anything while the game is loading
+            return; //Don't do anything while the game is loading or in editor
         if (HighLogic.LoadedScene == GameScenes.MAINMENU)
         {
             Went_to_Main = true;
@@ -120,18 +120,25 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
 
                         double LS_Use = LifeSupportRate.GetRate();
                         if (IFI_Location == "Kerbin" && IFI_ALT <= 12123) { LS_Use *= 0.20;  }
-                        if (IFI_Location == "Laythe" && IFI_ALT <= 6123) { LS_Use *= 0.75;  }
+                        if (IFI_Location == "Laythe" && IFI_ALT <= 6123) { LS_Use *= 0.60;  }
                         
                         LS_Use *= IFI_Crew;
                         LS_Use *= Elapesed_Time;
+                            // IF No EC use more LS resources
+                            if (IFIGetAllResources("ElectricCharge", vessel, vessel.loaded) < 0.1) { LS_Use *= 1.2;  }
                         if (LS_Use > 0.0) {
                             double rtest = IFIUSEResources("LifeSupport", vessel, vessel.loaded, LS_Use, IFI_Crew);                           
                         }
 
 
                     LSAval = IFIGetAllResources("LifeSupport",vessel,vessel.loaded);
-                    //Debug.Log("Vessel with crew onboard Found: " + TVname + "   Crew=" + IFI_Crew +"    LifeSupport = "+ LSAval +"  Body:"+IFI_Location+"   ALT:"+IFI_ALT);
-                    double days_rem = LSAval / IFI_Crew / LifeSupportRate.GetRate() / 60 / 60 / HoursPerDay;
+                            //Debug.Log("Vessel with crew onboard Found: " + TVname + "   Crew=" + IFI_Crew +"    LifeSupport = "+ LSAval +"  Body:"+IFI_Location+"   ALT:"+IFI_ALT);
+                            double LS_RR = LifeSupportRate.GetRate();
+                            if (IFI_Location == "Kerbin" && IFI_ALT <= 12123) { LS_RR *= 0.20; }
+                            if (IFI_Location == "Laythe" && IFI_ALT <= 6123) { LS_RR *= 0.60; }
+
+                            if (IFIGetAllResources("ElectricCharge", vessel, vessel.loaded) < 0.1) { LS_RR *= 1.2; }
+                            double days_rem = LSAval / IFI_Crew / LS_RR / 60 / 60 / HoursPerDay;
                     LS_Status_Hold[LS_Status_Hold_Count, 0] = TVname;
                     LS_Status_Hold[LS_Status_Hold_Count, 1] = IFI_Location;
                         string H_Crew = Convert.ToString(IFI_Crew);
@@ -240,6 +247,7 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
     {
         KerbalEVARescueDetect = false;
         double ALL_Resorces = IFIGetAllResources(IFIResource, IV, true);
+                if (ALL_Resorces == 0.0) { IFI_Check_Kerbals(IV, UR_Amount); return 0.0; }
         if (ALL_Resorces < UR_Amount)
         {
             double TEST_Mod = (UR_Amount - ALL_Resorces) * 100000;
@@ -364,7 +372,8 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
             iCrew.Die();  // Kill crew after removal or death will reset to active.
             IFIDebug.IFIMess(p.vessel.vesselName + " POD Kerbal Killed due to no LS - " + iCrew.name);
             string message = ""; message += p.vessel.vesselName + "\n\n"; message += iCrew.name + "\n Was killed due to ::";
-            message += "::";
+                    message += "No Life Support Remaining";
+                    message += "::";
             MessageSystem.Message m = new MessageSystem.Message("Kerbal Death from LifeSupport System", message, MessageSystemButton.MessageButtonColor.RED, MessageSystemButton.ButtonIcons.ALERT);
             MessageSystem.Instance.AddMessage(m);
         }
@@ -395,7 +404,8 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
             
                 IFIDebug.IFIMess(p.pVesselRef.vesselName + " POD Kerbal Killed due to no LS - " + iCrew.name);
                 string message = ""; message += p.pVesselRef.vesselName + "\n\n"; message += iCrew.name + "\n Was killed due to ::";
-                message += "::";
+                    message += "No Life Support Remaining";
+                    message += "::";
                 MessageSystem.Message m = new MessageSystem.Message("Kerbal Death from LifeSupport Failure", message, MessageSystemButton.MessageButtonColor.RED, MessageSystemButton.ButtonIcons.ALERT);
                 MessageSystem.Instance.AddMessage(m);
                 

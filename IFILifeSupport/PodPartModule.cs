@@ -63,6 +63,7 @@ namespace IFILifeSupport
             {
                 this.Fields[1].guiActive = true;
                 Vessel active = this.part.vessel;
+                 double LS_RR = LifeSupportRate.GetRate();
                 if (active.mainBody.theName == "Kerbin" && active.altitude <= 12123)
                 {
                     lifeSupportStatus = "Air Intake";
@@ -73,7 +74,9 @@ namespace IFILifeSupport
                 }
                 
                     double ResourceAval = IFIGetAllResources("LifeSupport");
-                     displayRate = (float)((ResourceAval / (LifeSupportRate.GetRate() * IFIGetAllKerbals())) / HoursPerDay / 60 / 60);
+               
+                if (IFIGetAllResources("ElectricCharge") < 0.1) { LS_RR *= 1.2; }
+                displayRate = (float)((ResourceAval / (LS_RR * IFIGetAllKerbals())) / HoursPerDay / 60 / 60);
                     
             }  //end of if crew > 0
             else if (crewCount == 0)
