@@ -7,10 +7,10 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyTitle("IFILifeSupport")]
 [assembly: AssemblyDescription("Life Support Mod for KSP")]
-[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyConfiguration("PreRelease Build")]
 [assembly: AssemblyCompany("Stavell")]
 [assembly: AssemblyProduct("IFILifeSupport")]
-[assembly: AssemblyCopyright("Copyright © Stavell 2015")]
+[assembly: AssemblyCopyright("Copyright © Stavell 2015-2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("3.2.0.0")]
-[assembly: AssemblyFileVersion("3.2.0.0")]
+[assembly: AssemblyVersion("3.3.1.0")]
+[assembly: AssemblyFileVersion("3.3.1.0")]

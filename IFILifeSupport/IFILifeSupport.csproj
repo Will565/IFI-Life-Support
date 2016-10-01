@@ -40,8 +40,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
-    <Reference Include="KSPUtil">
-      <HintPath>C:\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\KSPUtil.dll</HintPath>
+    <Reference Include="KSPAssets">
+      <HintPath>C:\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\KSPAssets.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -69,8 +69,19 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "C:\Steam\SteamApps\common\Kerbal Space Program\GameData\IFILS\Plugin\"
-copy "$(TargetPath)" "E:\Projects        - Releases\IFI LS\IFILS\Plugin\"</PostBuildEvent>
+    <PostBuildEvent>if $(ConfigurationName) == Debug goto :debug
+
+:release
+copy "$(TargetPath)" "C:\Steam\SteamApps\common\Kerbal Space Program\GameData\IFILS\Plugin\"
+copy "$(TargetPath)" "E:\Projects        - Releases\IFI LS\IFILS\Plugin\"
+goto :exit
+
+:debug
+"E:\KSPDebug\pdb2mdb\pdb2mdb.exe" "$(TargetFileName)"
+xcopy /Y "$(TargetPath)" "E:\KSPDebug\Kerbal Space Program\GameData\IFILS\Plugin\"
+xcopy /Y "$(TargetDir)$(TargetName).pdb" "E:\KSPDebug\Kerbal Space Program\GameData\IFILS\Plugin\"
+xcopy /Y "$(TargetDir)$(TargetName).dll.mdb" "E:\KSPDebug\Kerbal Space Program\GameData\IFILS\Plugin\"
+:exit</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

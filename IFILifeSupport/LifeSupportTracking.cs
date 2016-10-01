@@ -13,35 +13,27 @@ namespace IFILifeSupport
 [KSPAddon(KSPAddon.Startup.SpaceCentre, true)]
 public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
 {
-    private int IFITIM = 0;
-     // Stock APP Toolbar - Stavell
- private ApplicationLauncherButton IFI_Button = null;
- private Texture2D IFI_button_grn = new Texture2D(38, 38, TextureFormat.ARGB32, false);
- private Texture2D IFI_button_cau = new Texture2D(38, 38, TextureFormat.ARGB32, false);
- private Texture2D IFI_button_danger = new Texture2D(38, 38, TextureFormat.ARGB32, false);
- private bool IFI_Texture_Load = false;
+             private int IFITIM = 0;
+             // Stock APP Toolbar - Stavell
+             private ApplicationLauncherButton IFI_Button = null;
+                    private Texture2D IFI_button_grn = null;
+                    private Texture2D IFI_button_cau = null;
+                    private Texture2D IFI_button_danger = null;
+             private bool IFI_Texture_Load = false;
 
- private bool KerbalEVARescueDetect = false;
- private double IFITimer;
- private int IFICWLS = 25;
- private string[,] LS_Status_Hold;
- private int LS_Status_Hold_Count;
- // Make sure LS remaining Display conforms to Kerbin time setting.
- public static int HoursPerDay { get { return GameSettings.KERBIN_TIME ? 6 : 24; } }
- private bool Went_to_Main = false;
+             private bool KerbalEVARescueDetect = false;
+             private double IFITimer;
+             private int IFICWLS = 25;
+             private string[,] LS_Status_Hold;
+             private int LS_Status_Hold_Count;
+             // Make sure LS remaining Display conforms to Kerbin time setting.
+             public static int HoursPerDay { get { return GameSettings.KERBIN_TIME ? 6 : 24; } }
+             private bool Went_to_Main = false;
 
  private void OnGUIApplicationLauncherReady()
  {
-     // Create the button in the KSP AppLauncher
-     if (!IFI_Texture_Load)
-     {
-        double IHOLD = IFI_Get_Elasped_Time();
-
-         if (GameDatabase.Instance.ExistsTexture("IFILS/Textures/IFI_LS_GRN")) IFI_button_grn = GameDatabase.Instance.GetTexture("IFILS/Textures/IFI_LS_GRN", false);
-         if (GameDatabase.Instance.ExistsTexture("IFILS/Textures/IFI_LS_CAU")) IFI_button_cau = GameDatabase.Instance.GetTexture("IFILS/Textures/IFI_LS_CAU", false);
-         if (GameDatabase.Instance.ExistsTexture("IFILS/Textures/IFI_LS_DAN")) IFI_button_danger = GameDatabase.Instance.GetTexture("IFILS/Textures/IFI_LS_DAN", false);
-         IFI_Texture_Load = true;
-     }
+            // Create the button in the KSP AppLauncher
+            
      if (IFI_Button == null)
      {
          IFI_Button = ApplicationLauncher.Instance.AddModApplication(GUIToggle, GUIToggle,
@@ -50,6 +42,7 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
                          ApplicationLauncher.AppScenes.TRACKSTATION | ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.SPACECENTER | ApplicationLauncher.AppScenes.MAPVIEW,
                          IFI_button_grn);
      }
+
      if (!HighLogic.LoadedSceneIsEditor)
      { Life_Support_Update(); }
  }
@@ -124,10 +117,10 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
                         
                         LS_Use *= IFI_Crew;
                         LS_Use *= Elapesed_Time;
-                            // IF No EC use more LS resources
-                            if (IFIGetAllResources("ElectricCharge", vessel, vessel.loaded) < 0.1) { LS_Use *= 1.2;  }
+                        // IF No EC use more LS resources
+                        if (IFIGetAllResources("ElectricCharge", vessel, vessel.loaded) < 0.1) { LS_Use *= 1.2;  }
                         if (LS_Use > 0.0) {
-                            double rtest = IFIUSEResources("LifeSupport", vessel, vessel.loaded, LS_Use, IFI_Crew);                           
+                                double rtest = IFIUSEResources("LifeSupport", vessel, vessel.loaded, LS_Use, IFI_Crew);                           
                         }
 
 
@@ -184,6 +177,26 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
         InvokeRepeating("display_active", 1, 1);
     }
 
+    public void Start()
+        {
+            if (!IFI_Texture_Load)
+            {
+                if (IFI_button_grn == null)
+                {
+                    IFI_button_grn = new Texture2D(38, 38, TextureFormat.ARGB32, false);
+                    IFI_button_cau = new Texture2D(38, 38, TextureFormat.ARGB32, false);
+                    IFI_button_danger = new Texture2D(38, 38, TextureFormat.ARGB32, false);
+                }
+                double IHOLD = IFI_Get_Elasped_Time();
+
+                if (GameDatabase.Instance.ExistsTexture("IFILS/Textures/IFI_LS_GRN")) IFI_button_grn = GameDatabase.Instance.GetTexture("IFILS/Textures/IFI_LS_GRN", false);
+                if (GameDatabase.Instance.ExistsTexture("IFILS/Textures/IFI_LS_CAU")) IFI_button_cau = GameDatabase.Instance.GetTexture("IFILS/Textures/IFI_LS_CAU", false);
+                if (GameDatabase.Instance.ExistsTexture("IFILS/Textures/IFI_LS_DAN")) IFI_button_danger = GameDatabase.Instance.GetTexture("IFILS/Textures/IFI_LS_DAN", false);
+                IFI_Texture_Load = true;
+            }
+
+        }
+
     private double IFIGetAllResources(string IFIResource, Vessel IV, bool ISLoaded)
         {
             double IFIResourceAmt = 0.0;
@@ -195,7 +208,7 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
                 {
                     foreach (PartResource pr in p.Resources)
                     {
-                        if (pr.resourceName.Equals(IFIResource))
+                        if (pr.resourceName == IFIResource)
                         {
                             if (pr.flowState)
                             {
@@ -219,21 +232,22 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
             }
             else // Kerbal EVA code
             {
-                
+
                 foreach (ProtoPartSnapshot p in IV.protoVessel.protoPartSnapshots)
                 {
+
                     foreach (ProtoPartResourceSnapshot r in p.resources)
                     {
-                        if (r.resourceName == IFIResource)
+                       if (r.resourceName == IFIResource)
                         {
-                        
-                            ConfigNode cf = r.resourceValues;
-                            double IHold = 0;
-                            System.Double.TryParse(cf.GetValue("amount"), out IHold);
+
+
+                            double IHold = r.amount;
                             IFIResourceAmt += IHold;
                         }
                     }
                 }
+              
             }
 
             return IFIResourceAmt;
@@ -241,85 +255,82 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
 
     private double IFIUSEResources(string IFIResource, Vessel IV, bool ISLoaded, double UR_Amount, int CREWHOLD)
 {
-    double Temp_Resource = UR_Amount;
-    
-    if (ISLoaded)
-    {
-        KerbalEVARescueDetect = false;
-        double ALL_Resorces = IFIGetAllResources(IFIResource, IV, true);
-                if (ALL_Resorces == 0.0) { IFI_Check_Kerbals(IV, UR_Amount); return 0.0; }
-        if (ALL_Resorces < UR_Amount)
-        {
-            double TEST_Mod = (UR_Amount - ALL_Resorces) * 100000;
-            Temp_Resource = IV.rootPart.RequestResource(IFIResource, ALL_Resorces);
-        }
-        else
-        {
-            Temp_Resource = IV.rootPart.RequestResource(IFIResource, UR_Amount);
-        }
-    }
-    else
-    {
-        KerbalEVARescueDetect = true;
-        int PartCountForShip = 0;
-        foreach (ProtoPartSnapshot p in IV.protoVessel.protoPartSnapshots)
-        {
-            PartCountForShip++;
-            foreach (ProtoPartResourceSnapshot r in p.resources)
-            {
-                if (r.resourceName == IFIResource)
-                {
-                    KerbalEVARescueDetect = false;
-                    if (UR_Amount <= 0.0) break;
-                    ConfigNode cf = r.resourceValues;
-                    double IHold = 0;
-                    System.Double.TryParse(cf.GetValue("amount"), out IHold);
-                    // Fix for Kerbal rescue Missions
-                   Int16 RescueTest = -1;
-                   ConfigNode RT = p.pVesselRef.discoveryInfo;
-                   System.Int16.TryParse(RT.GetValue("state"), out RescueTest);
+            double Temp_Resource = UR_Amount;
 
-                    if ( PartCountForShip <= 2 && CREWHOLD == 1 && IHold <= 0.0 && RescueTest == 29)
-                    {
-                        // Add Resources to Rescue Contract POD 1 time
-                        IFIDebug.IFIMess("#### IFI LIfeSupport #### Rescue POD Found with No LS Resource TAG Flagging --"+Convert.ToString(RescueTest));
-                      
-                        IHold = 5.0;
-                        IHold -= Temp_Resource;
-                        string tvt = System.Convert.ToString(IHold);
-                        cf.SetValue("amount", tvt);
-                        UR_Amount = 0.0;
-                        return 0.0;
-                    }
-                    if (RescueTest == 29) { return 0.0; } // DO NOT USE LS ON RESCUE POD TILL player gets  CLOSE
-                        UR_Amount -= IHold;
-                        if (UR_Amount <= 0.0)
-                        {
-                            IHold -= Temp_Resource;
-                            string tvt = System.Convert.ToString(IHold);
-                            cf.SetValue("amount", tvt);
-                            UR_Amount = 0.0;
-                        }
-                        else
-                        {
-                            cf.SetValue("amount", "0.0");
-                        }
-            
-                    Temp_Resource = UR_Amount;
+            if (ISLoaded)
+            {
+               
+                double ALL_Resorces = IFIGetAllResources(IFIResource, IV, true);
+                if (ALL_Resorces == 0.0)
+                {
+                    //IFI_Check_Kerbals(IV, UR_Amount); 
+                    return 0.0;
+                }
+                if (ALL_Resorces < UR_Amount)
+                {
+                    double TEST_Mod = (UR_Amount - ALL_Resorces) * 100000;
+                    Temp_Resource = IV.rootPart.RequestResource(IFIResource, ALL_Resorces);
+                }
+                else
+                {
+                    Temp_Resource = IV.rootPart.RequestResource(IFIResource, UR_Amount);
                 }
             }
-            if (UR_Amount <= 0.0) break;
-        }
-        if (IV.isEVA && KerbalEVARescueDetect)
-        {
-         IFIDebug.IFIMess("#### IFI LIfeSupport #### Rescue Kerbal Found with No LS Resource TAG Flagging");
-                UR_Amount = 0.0;
-        }
-        if (UR_Amount > 0.0) { IFI_Check_Kerbals(IV, UR_Amount); }
+            else
+            {
+                KerbalEVARescueDetect = false;
+                int PartCountForShip = 0;
+                foreach (ProtoPartSnapshot p in IV.protoVessel.protoPartSnapshots)
+                {
+                    PartCountForShip++;
+                    foreach (ProtoPartResourceSnapshot r in p.resources)
+                    {
+                        if (r.resourceName == IFIResource)
+                        {
+                            if (UR_Amount <= 0.0) break;
+                            double IHold = r.amount;
+                            // Fix for Kerbal rescue Missions
+                            Int16 RescueTest = -1;
+                            ConfigNode RT = p.pVesselRef.discoveryInfo;
+                            System.Int16.TryParse(RT.GetValue("state"), out RescueTest);
 
-    }
+                            if (PartCountForShip <= 2 && CREWHOLD == 1 && IHold <= 0.0 && RescueTest == 29)
+                            {
+                                // Add Resources to Rescue Contract POD 1 time
+                                IFIDebug.IFIMess("#### IFI LIfeSupport #### Rescue POD Found with No LS Resource TAG Flagging --" + Convert.ToString(RescueTest));
+                                KerbalEVARescueDetect = true;
+                                IHold = r.maxAmount;                                
+                                r.amount = IHold;
+                                UR_Amount = 0.0;
+                                return 0.0;
+                            }
+                            if (RescueTest == 29) { KerbalEVARescueDetect = true;
+                                return 0.0; } // DO NOT USE LS ON RESCUE POD TILL player gets  CLOSE
+                            UR_Amount -= IHold;
+                            if (UR_Amount <= 0.0)
+                            {
+                                IHold -= Temp_Resource;
+                                r.amount = IHold;
+                                UR_Amount = 0.0;
+                            }
+                            else
+                            {
+                                r.amount = 0.0;
+                            }
 
-    return UR_Amount;
+                            Temp_Resource = UR_Amount;
+                        }
+                    }
+                    //
+                    if (UR_Amount <= 0.0) break;
+                }
+                //if (IV.isEVA && )
+                //{
+                //    IFIDebug.IFIMess("#### IFI LIfeSupport #### Rescue Kerbal Found with No LS Resource TAG Flagging");
+                //    UR_Amount = 0.0;
+                //}
+            }
+            return UR_Amount;
 }
 
     private void CrewTestEVA(Vessel IV, double l)
@@ -418,7 +429,7 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
                 if (IV.vesselType == VesselType.EVA)
                 {
                     try {
-                        CrewTestEVA(IV , l);
+                       // CrewTestEVA(IV , l);
                     }
                     catch (Exception ex) { IFIDebug.IFIMess("Vessel IFI Exception ++Finding Kerbals++ eva " + ex.Message); }
                 }
