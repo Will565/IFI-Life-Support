@@ -59,6 +59,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EVAPartUpdate.cs" />
+    <Compile Include="PartUpdate.cs" />
     <Compile Include="LifeSupportDisplay.cs" />
     <Compile Include="LifeSupportTracking.cs" />
     <Compile Include="LifeSupportRate.cs" />

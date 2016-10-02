@@ -120,7 +120,8 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
                         // IF No EC use more LS resources
                         if (IFIGetAllResources("ElectricCharge", vessel, vessel.loaded) < 0.1) { LS_Use *= 1.2;  }
                         if (LS_Use > 0.0) {
-                                double rtest = IFIUSEResources("LifeSupport", vessel, vessel.loaded, LS_Use, IFI_Crew);                           
+                                double rtest = IFIUSEResources("LifeSupport", vessel, vessel.loaded, LS_Use, IFI_Crew); 
+                                                          
                         }
 
 
@@ -194,8 +195,8 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
                 if (GameDatabase.Instance.ExistsTexture("IFILS/Textures/IFI_LS_DAN")) IFI_button_danger = GameDatabase.Instance.GetTexture("IFILS/Textures/IFI_LS_DAN", false);
                 IFI_Texture_Load = true;
             }
-
-        }
+           
+            }
 
     private double IFIGetAllResources(string IFIResource, Vessel IV, bool ISLoaded)
         {
@@ -263,7 +264,7 @@ public class IFI_LIFESUPPORT_TRACKING : UnityEngine.MonoBehaviour
                 double ALL_Resorces = IFIGetAllResources(IFIResource, IV, true);
                 if (ALL_Resorces == 0.0)
                 {
-                    //IFI_Check_Kerbals(IV, UR_Amount); 
+                    IFI_Check_Kerbals(IV, UR_Amount); 
                     return 0.0;
                 }
                 if (ALL_Resorces < UR_Amount)
